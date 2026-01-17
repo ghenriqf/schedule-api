@@ -1,0 +1,11 @@
+INSERT INTO functions (name) VALUES
+('VOCALISTA'),
+('BACKING'),
+('BATERIA'),
+('VIOLÃO'),
+('MESA DE SOM'),
+('MÍDIA'),
+('GUITARRA'),
+('TECLADO'),
+('BAIXO')
+ON CONFLICT (name) DO NOTHING;

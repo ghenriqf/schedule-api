@@ -1,0 +1,10 @@
+CREATE TABLE users (
+    id BIGSERIAL PRIMARY KEY,
+    username VARCHAR(100) UNIQUE NOT NULL,
+    name VARCHAR(150),
+    email VARCHAR(150) UNIQUE NOT NULL,
+    password VARCHAR(250) NOT NULL,
+    birth DATE,
+    created_at TIMESTAMP WITHOUT TIME ZONE,
+    updated_at TIMESTAMP WITHOUT TIME ZONE
+);
