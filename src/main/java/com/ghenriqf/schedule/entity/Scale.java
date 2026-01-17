@@ -21,10 +21,12 @@ public class Scale {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
     private String description;
 
+    @Column(nullable = false)
     private LocalDateTime date;
 
     @ManyToMany
@@ -43,7 +45,7 @@ public class Scale {
     )
     private List<Music> musics;
 
-    @ManyToOne
-    @JoinColumn(name = "ministry_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ministry_id", nullable = false)
     private Ministry ministry;
 }

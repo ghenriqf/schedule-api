@@ -19,6 +19,7 @@ public class Ministry {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
     private String description;
@@ -26,7 +27,7 @@ public class Ministry {
     @OneToMany(mappedBy = "ministry")
     private Set<Scale> scales;
 
-    @OneToMany
+    @OneToMany(mappedBy = "ministry")
     private List<Music> repertory;
 
     @OneToMany(mappedBy = "ministry")
