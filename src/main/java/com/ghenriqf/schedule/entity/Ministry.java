@@ -26,7 +26,7 @@ public class Ministry {
     @OneToMany(mappedBy = "ministry")
     private Set<Scale> scales;
 
-    @OneToMany
+    @OneToMany(mappedBy = "ministry")
     private List<Music> repertory;
 
     @OneToMany(mappedBy = "ministry")

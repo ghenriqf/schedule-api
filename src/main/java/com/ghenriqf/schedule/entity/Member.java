@@ -18,12 +18,12 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "ministry_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ministry_id", nullable = false)
     private Ministry ministry;
 
     @ManyToMany

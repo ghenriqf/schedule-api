@@ -20,7 +20,7 @@ public class Music {
 
     private String link;
 
-    @ManyToOne
-    @JoinColumn(name = "ministry_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ministry_id", nullable = false)
     private Ministry ministry;
 }

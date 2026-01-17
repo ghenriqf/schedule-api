@@ -43,7 +43,7 @@ public class Scale {
     )
     private List<Music> musics;
 
-    @ManyToOne
-    @JoinColumn(name = "ministry_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ministry_id", nullable = false)
     private Ministry ministry;
 }
