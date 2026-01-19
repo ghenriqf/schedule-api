@@ -1,6 +1,9 @@
 package com.ghenriqf.schedule.dto.response;
 
-public record SignUpResponse(
+import lombok.Builder;
+
+@Builder
+public record UserResponse(
         Long id,
         String username,
         String email
