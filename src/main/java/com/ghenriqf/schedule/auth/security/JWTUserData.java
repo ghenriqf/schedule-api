@@ -1,4 +1,4 @@
-package com.ghenriqf.schedule.config.security;
+package com.ghenriqf.schedule.auth.security;
 
 import lombok.Builder;
 

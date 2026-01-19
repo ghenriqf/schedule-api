@@ -1,4 +1,4 @@
-package com.ghenriqf.schedule.dto.response;
+package com.ghenriqf.schedule.auth.dto.response;
 
 import lombok.Builder;
 

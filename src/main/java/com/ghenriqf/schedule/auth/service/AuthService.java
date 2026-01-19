@@ -1,6 +1,6 @@
-package com.ghenriqf.schedule.service;
+package com.ghenriqf.schedule.auth.service;
 
-import com.ghenriqf.schedule.repository.UserRepository;
+import com.ghenriqf.schedule.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

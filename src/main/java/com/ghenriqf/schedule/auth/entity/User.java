@@ -1,4 +1,4 @@
-package com.ghenriqf.schedule.entity;
+package com.ghenriqf.schedule.auth.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

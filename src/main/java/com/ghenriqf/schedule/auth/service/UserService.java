@@ -1,13 +1,15 @@
-package com.ghenriqf.schedule.service;
+package com.ghenriqf.schedule.auth.service;
 
-import com.ghenriqf.schedule.dto.request.UserRequest;
-import com.ghenriqf.schedule.dto.response.UserResponse;
-import com.ghenriqf.schedule.entity.User;
-import com.ghenriqf.schedule.mapper.UserMapper;
-import com.ghenriqf.schedule.repository.UserRepository;
+import com.ghenriqf.schedule.auth.dto.request.UserRequest;
+import com.ghenriqf.schedule.auth.dto.response.UserResponse;
+import com.ghenriqf.schedule.auth.entity.User;
+import com.ghenriqf.schedule.auth.mapper.UserMapper;
+import com.ghenriqf.schedule.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

@@ -1,12 +1,12 @@
-package com.ghenriqf.schedule.controller;
+package com.ghenriqf.schedule.auth.controller;
 
-import com.ghenriqf.schedule.config.security.TokenService;
-import com.ghenriqf.schedule.dto.request.LoginRequest;
-import com.ghenriqf.schedule.dto.request.UserRequest;
-import com.ghenriqf.schedule.dto.response.LoginResponse;
-import com.ghenriqf.schedule.dto.response.UserResponse;
-import com.ghenriqf.schedule.entity.User;
-import com.ghenriqf.schedule.service.UserService;
+import com.ghenriqf.schedule.auth.security.TokenService;
+import com.ghenriqf.schedule.auth.dto.request.LoginRequest;
+import com.ghenriqf.schedule.auth.dto.request.UserRequest;
+import com.ghenriqf.schedule.auth.dto.response.LoginResponse;
+import com.ghenriqf.schedule.auth.dto.response.UserResponse;
+import com.ghenriqf.schedule.auth.entity.User;
+import com.ghenriqf.schedule.auth.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

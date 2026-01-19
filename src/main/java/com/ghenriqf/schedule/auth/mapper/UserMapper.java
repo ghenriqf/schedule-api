@@ -1,8 +1,8 @@
-package com.ghenriqf.schedule.mapper;
+package com.ghenriqf.schedule.auth.mapper;
 
-import com.ghenriqf.schedule.dto.request.UserRequest;
-import com.ghenriqf.schedule.dto.response.UserResponse;
-import com.ghenriqf.schedule.entity.User;
+import com.ghenriqf.schedule.auth.dto.request.UserRequest;
+import com.ghenriqf.schedule.auth.dto.response.UserResponse;
+import com.ghenriqf.schedule.auth.entity.User;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass

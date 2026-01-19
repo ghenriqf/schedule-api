@@ -1,4 +1,4 @@
-package com.ghenriqf.schedule.config.security;
+package com.ghenriqf.schedule.auth.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

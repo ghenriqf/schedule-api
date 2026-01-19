@@ -1,5 +1,6 @@
 package com.ghenriqf.schedule.entity;
 
+import com.ghenriqf.schedule.ministry.entity.Ministry;
 import jakarta.persistence.*;
 import lombok.*;
 

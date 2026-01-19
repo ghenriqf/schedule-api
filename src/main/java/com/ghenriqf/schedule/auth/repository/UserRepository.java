@@ -1,6 +1,6 @@
-package com.ghenriqf.schedule.repository;
+package com.ghenriqf.schedule.auth.repository;
 
-import com.ghenriqf.schedule.entity.User;
+import com.ghenriqf.schedule.auth.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

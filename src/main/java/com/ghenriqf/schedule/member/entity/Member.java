@@ -1,5 +1,9 @@
-package com.ghenriqf.schedule.entity;
+package com.ghenriqf.schedule.member.entity;
 
+import com.ghenriqf.schedule.auth.entity.User;
+import com.ghenriqf.schedule.entity.Function;
+import com.ghenriqf.schedule.ministry.entity.Ministry;
+import com.ghenriqf.schedule.ministry.entity.MinistryRole;
 import jakarta.persistence.*;
 import lombok.*;
 

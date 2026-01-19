@@ -1,4 +1,4 @@
-package com.ghenriqf.schedule.entity;
+package com.ghenriqf.schedule.ministry.entity;
 
 public enum MinistryRole {
     ADMIN,
