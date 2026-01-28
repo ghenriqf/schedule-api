@@ -12,6 +12,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class MinistryService {
@@ -21,7 +23,7 @@ public class MinistryService {
     private final CurrentUserProvider currentUserProvider;
 
     @Transactional
-    public MinistryResponse save (MinistryRequest request) {
+    public MinistryResponse create (MinistryRequest request) {
         User currentUser = currentUserProvider.getCurrentUser();
 
         Ministry ministry = Ministry
@@ -35,5 +37,11 @@ public class MinistryService {
         memberService.createAdmin(currentUser, ministry);
 
         return MinistryMapper.toResponse(save);
+    }
+
+    @Transactional
+    public List<MinistryResponse> findAllByCurrentUser () {
+        User currentUser = currentUserProvider.getCurrentUser();
+        return ministryRepository.findMinistriesByUserId(currentUser.getId());
     }
 }
