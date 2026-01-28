@@ -8,6 +8,7 @@ import com.ghenriqf.schedule.ministry.dto.response.MinistryResponse;
 import com.ghenriqf.schedule.ministry.entity.Ministry;
 import com.ghenriqf.schedule.ministry.mapper.MinistryMapper;
 import com.ghenriqf.schedule.ministry.repository.MinistryRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,9 @@ public class MinistryService {
     private final MemberService memberService;
     private final CurrentUserProvider currentUserProvider;
 
+    @Transactional
     public MinistryResponse save (MinistryRequest request) {
+        User currentUser = currentUserProvider.getCurrentUser();
 
         Ministry ministry = Ministry
                 .builder()
@@ -29,7 +32,6 @@ public class MinistryService {
 
         Ministry save = ministryRepository.save(ministry);
 
-        User currentUser = currentUserProvider.getCurrentUser();
         memberService.createAdmin(currentUser, ministry);
 
         return MinistryMapper.toResponse(save);
