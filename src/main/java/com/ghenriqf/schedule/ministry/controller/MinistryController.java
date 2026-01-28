@@ -1,11 +1,31 @@
 package com.ghenriqf.schedule.ministry.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.ghenriqf.schedule.ministry.dto.request.MinistryRequest;
+import com.ghenriqf.schedule.ministry.dto.response.MinistryResponse;
+import com.ghenriqf.schedule.ministry.service.MinistryService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/ministry")
+@RequiredArgsConstructor
+@RequestMapping("/ministries")
 public class MinistryController {
 
+    private final MinistryService ministryService;
 
+    @PostMapping
+    public ResponseEntity<MinistryResponse> create(@Valid @RequestBody MinistryRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ministryService.create(request));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<MinistryResponse>> findAll() {
+        return ResponseEntity.ok(ministryService.findAllByCurrentUser());
+    }
 }
