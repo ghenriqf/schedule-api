@@ -1,8 +1,8 @@
 package com.ghenriqf.schedule.ministry.entity;
 
 import com.ghenriqf.schedule.member.entity.Member;
-import com.ghenriqf.schedule.entity.Music;
-import com.ghenriqf.schedule.entity.Scale;
+import com.ghenriqf.schedule.music.entity.Music;
+import com.ghenriqf.schedule.scale.entity.Scale;
 import jakarta.persistence.*;
 import lombok.*;
 
