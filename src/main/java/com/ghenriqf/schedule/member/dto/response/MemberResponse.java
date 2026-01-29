@@ -1,6 +1,6 @@
 package com.ghenriqf.schedule.member.dto.response;
 
-import com.ghenriqf.schedule.entity.Function;
+import com.ghenriqf.schedule.function.Function;
 import lombok.Builder;
 
 import java.util.Set;
