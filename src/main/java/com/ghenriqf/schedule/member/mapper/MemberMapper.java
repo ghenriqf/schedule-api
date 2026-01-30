@@ -13,6 +13,7 @@ public class MemberMapper {
                 .id(entity.getId())
                 .userId(entity.getUser().getId())
                 .ministryId(entity.getMinistry().getId())
+                .role(entity.getRole())
                 .build();
     }
 }
