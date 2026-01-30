@@ -28,4 +28,14 @@ public class MemberService {
 
         return MemberMapper.toResponse(save);
     }
+
+    public Long countByMinistryId (Long id) {
+        return memberRepository.countByMinistryId(id);
+    }
+
+    public MemberResponse findByUserIdAndMinistryId (Long userId, Long ministryId) {
+        Member member = memberRepository.findByUserIdAndMinistryId(userId, ministryId).orElseThrow(() -> new RuntimeException());
+
+        return MemberMapper.toResponse(member);
+    }
 }
