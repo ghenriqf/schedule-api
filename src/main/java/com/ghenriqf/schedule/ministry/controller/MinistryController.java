@@ -1,6 +1,7 @@
 package com.ghenriqf.schedule.ministry.controller;
 
 import com.ghenriqf.schedule.ministry.dto.request.MinistryRequest;
+import com.ghenriqf.schedule.ministry.dto.response.MinistryDetailResponse;
 import com.ghenriqf.schedule.ministry.dto.response.MinistryResponse;
 import com.ghenriqf.schedule.ministry.service.MinistryService;
 import jakarta.validation.Valid;
@@ -26,5 +27,10 @@ public class MinistryController {
     @GetMapping
     public ResponseEntity<List<MinistryResponse>> findAll() {
         return ResponseEntity.ok(ministryService.findAllByCurrentUser());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<MinistryDetailResponse> findDetailById (@PathVariable Long id) {
+        return ResponseEntity.ok(ministryService.getDetailById(id));
     }
 }
