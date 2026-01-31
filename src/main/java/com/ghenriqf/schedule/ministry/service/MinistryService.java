@@ -2,6 +2,7 @@ package com.ghenriqf.schedule.ministry.service;
 
 import com.ghenriqf.schedule.auth.context.CurrentUserProvider;
 import com.ghenriqf.schedule.auth.entity.User;
+import com.ghenriqf.schedule.exception.ResourceNotFoundException;
 import com.ghenriqf.schedule.member.dto.response.MemberResponse;
 import com.ghenriqf.schedule.member.service.MemberService;
 import com.ghenriqf.schedule.ministry.dto.request.MinistryRequest;
@@ -57,7 +58,7 @@ public class MinistryService {
 
     public MinistryDetailResponse getDetailById (Long id) {
         Ministry ministry = ministryRepository.findById(id)
-                .orElseThrow(() ->new RuntimeException());
+                .orElseThrow(() ->new ResourceNotFoundException("Ministry not found with id: " + id));
 
         User currentUser = currentUserProvider.getCurrentUser();
         MemberResponse member = memberService.findByUserIdAndMinistryId(currentUser.getId(), id);

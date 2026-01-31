@@ -3,6 +3,9 @@ package com.ghenriqf.schedule.auth.context;
 import com.ghenriqf.schedule.auth.entity.User;
 import com.ghenriqf.schedule.auth.repository.UserRepository;
 import com.ghenriqf.schedule.auth.security.JWTUserData;
+import com.ghenriqf.schedule.exception.InvalidTokenException;
+import com.ghenriqf.schedule.exception.ResourceNotFoundException;
+import com.ghenriqf.schedule.exception.UnauthenticatedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,17 +22,17 @@ public class CurrentUserProvider {
                 SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null) {
-            throw new IllegalStateException("Usuário não autenticado");
+            throw new UnauthenticatedException("The user is not authenticated in the system");
         }
 
         Object principal = authentication.getPrincipal();
 
         if (!(principal instanceof JWTUserData jwtUserData)) {
-            throw new IllegalStateException("Principal inválido");
+            throw new InvalidTokenException("The authentication data is in an invalid format");
         }
 
         return userRepository.findById(jwtUserData.id())
                 .orElseThrow(() ->
-                        new IllegalStateException("Usuário não encontrado"));
+                        new ResourceNotFoundException("User not found"));
     }
 }

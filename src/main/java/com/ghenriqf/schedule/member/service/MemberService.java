@@ -1,6 +1,7 @@
 package com.ghenriqf.schedule.member.service;
 
 import com.ghenriqf.schedule.auth.entity.User;
+import com.ghenriqf.schedule.exception.ResourceNotFoundException;
 import com.ghenriqf.schedule.member.dto.response.MemberResponse;
 import com.ghenriqf.schedule.member.entity.Member;
 import com.ghenriqf.schedule.member.mapper.MemberMapper;
@@ -34,7 +35,8 @@ public class MemberService {
     }
 
     public MemberResponse findByUserIdAndMinistryId (Long userId, Long ministryId) {
-        Member member = memberRepository.findByUserIdAndMinistryId(userId, ministryId).orElseThrow(() -> new RuntimeException());
+        Member member = memberRepository.findByUserIdAndMinistryId(userId, ministryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Member not found"));
 
         return MemberMapper.toResponse(member);
     }
