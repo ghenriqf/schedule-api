@@ -69,8 +69,6 @@ public class MinistryService {
                 musicService.countByMinistryId(id)
         );
 
-        System.out.println(member.role());
-
         return new MinistryDetailResponse(
                 ministry.getId(),
                 ministry.getName(),
