@@ -31,4 +31,12 @@ public class MusicMapper {
                 .chordSheetLink(request.chordSheetLink())
                 .build();
     }
+
+    public static void updateEntityFromRequest (MusicRequest musicRequest, Music entity) {
+        entity.setTitle(musicRequest.title());
+        entity.setArtist(musicRequest.artist());
+        entity.setTone(musicRequest.tone());
+        entity.setVideoLink(musicRequest.videoLink());
+        entity.setChordSheetLink(musicRequest.chordSheetLink());
+    }
 }
