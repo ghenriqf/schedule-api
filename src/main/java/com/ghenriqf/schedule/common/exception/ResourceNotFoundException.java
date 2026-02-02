@@ -1,4 +1,4 @@
-package com.ghenriqf.schedule.exception;
+package com.ghenriqf.schedule.common.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String message) {

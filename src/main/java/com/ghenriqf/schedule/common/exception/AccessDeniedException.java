@@ -1,4 +1,4 @@
-package com.ghenriqf.schedule.exception;
+package com.ghenriqf.schedule.common.exception;
 
 public class AccessDeniedException extends RuntimeException {
     public AccessDeniedException(String message) {

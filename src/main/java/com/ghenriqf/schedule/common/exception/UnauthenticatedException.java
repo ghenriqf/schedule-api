@@ -1,4 +1,4 @@
-package com.ghenriqf.schedule.exception;
+package com.ghenriqf.schedule.common.exception;
 
 public class UnauthenticatedException extends RuntimeException {
     public UnauthenticatedException(String message) {
