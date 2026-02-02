@@ -2,8 +2,9 @@ package com.ghenriqf.schedule.music.service;
 
 import com.ghenriqf.schedule.auth.context.CurrentUserProvider;
 import com.ghenriqf.schedule.auth.entity.User;
-import com.ghenriqf.schedule.exception.AccessDeniedException;
-import com.ghenriqf.schedule.exception.ResourceNotFoundException;
+import com.ghenriqf.schedule.common.dto.PageRequestDTO;
+import com.ghenriqf.schedule.common.exception.AccessDeniedException;
+import com.ghenriqf.schedule.common.exception.ResourceNotFoundException;
 import com.ghenriqf.schedule.member.dto.response.MemberResponse;
 import com.ghenriqf.schedule.member.service.MemberService;
 import com.ghenriqf.schedule.ministry.entity.MinistryRole;
@@ -15,6 +16,8 @@ import com.ghenriqf.schedule.music.mapper.MusicMapper;
 import com.ghenriqf.schedule.music.repository.MusicRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +45,61 @@ public class MusicService {
         Music saved = musicRepository.save(music);
 
         return MusicMapper.toResponse(saved);
+    }
+
+    public void delete(Long musicId, Long ministryId) {
+        User user = currentUserProvider.getCurrentUser();
+        MemberResponse member = memberService.findByUserIdAndMinistryId(user.getId(), ministryId);
+
+        if (member.role() != MinistryRole.ADMIN) {
+            throw new AccessDeniedException("Only administrators can delete songs");
+        }
+
+        Music music = musicRepository.findById(musicId)
+                .orElseThrow(() -> new ResourceNotFoundException("Music not found"));
+
+        if (!music.getMinistry().getId().equals(ministryId)) {
+            throw new AccessDeniedException("This song does not belong to the ministry mentioned");
+        }
+
+        musicRepository.delete(music);
+    }
+
+    public MusicResponse update (MusicRequest musicRequest, Long musicId , Long ministryId) {
+        User user = currentUserProvider.getCurrentUser();
+        MemberResponse member = memberService.findByUserIdAndMinistryId(user.getId(), ministryId);
+
+        if (member.role() != MinistryRole.ADMIN) {
+            throw new AccessDeniedException("Only administrators can update songs");
+        }
+
+        Music music = musicRepository.findById(musicId)
+                .orElseThrow(() -> new ResourceNotFoundException("Music not found"));
+
+        if (!music.getMinistry().getId().equals(ministryId)) {
+            throw new AccessDeniedException("This song does not belong to the ministry mentioned");
+        }
+
+        MusicMapper.updateEntityFromRequest(musicRequest, music);
+
+        Music updatedMusic = musicRepository.save(music);
+
+        return MusicMapper.toResponse(updatedMusic);
+    }
+
+    public List<MusicResponse> findAll (PageRequestDTO pageRequestDTO, Long ministryId) {
+
+        User user = currentUserProvider.getCurrentUser();
+        MemberResponse member = memberService.findByUserIdAndMinistryId(user.getId(), ministryId);
+
+        if (!(member.ministryId().equals(ministryId))) {
+            throw new AccessDeniedException("User does not belong to the ministry");
+        }
+
+        return musicRepository.findAll(pageRequestDTO.toPageable())
+                .stream()
+                .map(MusicMapper::toResponse)
+                .toList();
     }
 
     public Long countByMinistryId (Long id) {
