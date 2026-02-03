@@ -23,14 +23,25 @@ public class MusicController {
         return ResponseEntity.status(HttpStatus.CREATED).body(musicService.save(ministryId, musicRequest));
     }
 
-    @DeleteMapping("/ministries/{ministryId}/musics")
-    public ResponseEntity<MusicResponse> delete (@PathVariable Long musicId, @PathVariable Long ministryId) {
-        musicService.delete(musicId, ministryId);
-        return ResponseEntity.ok().build();
+    @GetMapping("/ministries/{ministryId}/musics/{musicId}")
+    public ResponseEntity<MusicResponse> findById (@PathVariable Long musicId, @PathVariable Long ministryId) {
+        return ResponseEntity.ok(musicService.findById(musicId, ministryId));
     }
 
     @GetMapping("/ministries/{ministryId}/musics")
     public ResponseEntity<List<MusicResponse>> listAll (@Valid PageRequestDTO pageRequestDTO, @PathVariable Long id ) {
         return ResponseEntity.ok(musicService.findAll(pageRequestDTO, id));
     }
+
+    @PutMapping("/ministries/{ministryId}/musics/{musicId}")
+    public ResponseEntity<MusicResponse> update (@RequestBody @Valid MusicRequest musicRequest, @PathVariable Long musicId, @PathVariable Long ministryId) {
+        return ResponseEntity.ok(musicService.update(musicRequest, musicId, ministryId));
+    }
+
+    @DeleteMapping("/ministries/{ministryId}/musics")
+    public ResponseEntity<MusicResponse> delete (@PathVariable Long musicId, @PathVariable Long ministryId) {
+        musicService.delete(musicId, ministryId);
+        return ResponseEntity.ok().build();
+    }
+
 }
