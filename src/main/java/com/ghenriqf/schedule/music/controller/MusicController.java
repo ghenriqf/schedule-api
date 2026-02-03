@@ -29,8 +29,8 @@ public class MusicController {
     }
 
     @GetMapping("/ministries/{ministryId}/musics")
-    public ResponseEntity<List<MusicResponse>> listAll (@Valid PageRequestDTO pageRequestDTO, @PathVariable Long id ) {
-        return ResponseEntity.ok(musicService.findAll(pageRequestDTO, id));
+    public ResponseEntity<List<MusicResponse>> listAll (@Valid PageRequestDTO pageRequestDTO, @PathVariable Long ministryId ) {
+        return ResponseEntity.ok(musicService.findAll(pageRequestDTO, ministryId));
     }
 
     @PutMapping("/ministries/{ministryId}/musics/{musicId}")
@@ -38,7 +38,7 @@ public class MusicController {
         return ResponseEntity.ok(musicService.update(musicRequest, musicId, ministryId));
     }
 
-    @DeleteMapping("/ministries/{ministryId}/musics")
+    @DeleteMapping("/ministries/{ministryId}/musics/{musicId}")
     public ResponseEntity<MusicResponse> delete (@PathVariable Long musicId, @PathVariable Long ministryId) {
         musicService.delete(musicId, ministryId);
         return ResponseEntity.ok().build();
