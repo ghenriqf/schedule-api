@@ -29,12 +29,11 @@ public class MusicService {
     private final MinistryRepository ministryRepository;
 
     public MusicResponse save (Long ministryId, MusicRequest musicRequest) {
-
         User user = currentUserProvider.getCurrentUser();
         MemberResponse member = memberService.findByUserIdAndMinistryId(user.getId(), ministryId);
 
         if (!(member.role().equals(MinistryRole.ADMIN))) {
-            throw new AccessDeniedException("Only administrators can add music");
+            throw new AccessDeniedException("Only administrators can add song");
         }
 
         Music music = MusicMapper.toEntity(musicRequest);
@@ -47,6 +46,20 @@ public class MusicService {
         return MusicMapper.toResponse(saved);
     }
 
+    public MusicResponse findById (Long musicId, Long ministryId) {
+        User user = currentUserProvider.getCurrentUser();
+        MemberResponse member = memberService.findByUserIdAndMinistryId(user.getId(), ministryId);
+
+        Music music = musicRepository.findById(musicId)
+                .orElseThrow(() -> new ResourceNotFoundException("Song not found"));
+
+        if (!(music.getMinistry().getId().equals(ministryId))) {
+            throw new AccessDeniedException("This song does not belong to the ministry mentioned");
+        }
+
+        return MusicMapper.toResponse(music);
+    }
+
     public void delete(Long musicId, Long ministryId) {
         User user = currentUserProvider.getCurrentUser();
         MemberResponse member = memberService.findByUserIdAndMinistryId(user.getId(), ministryId);
@@ -56,7 +69,7 @@ public class MusicService {
         }
 
         Music music = musicRepository.findById(musicId)
-                .orElseThrow(() -> new ResourceNotFoundException("Music not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Song not found"));
 
         if (!music.getMinistry().getId().equals(ministryId)) {
             throw new AccessDeniedException("This song does not belong to the ministry mentioned");
@@ -74,21 +87,19 @@ public class MusicService {
         }
 
         Music music = musicRepository.findById(musicId)
-                .orElseThrow(() -> new ResourceNotFoundException("Music not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Song not found"));
 
         if (!music.getMinistry().getId().equals(ministryId)) {
             throw new AccessDeniedException("This song does not belong to the ministry mentioned");
         }
 
         MusicMapper.updateEntityFromRequest(musicRequest, music);
-
         Music updatedMusic = musicRepository.save(music);
 
         return MusicMapper.toResponse(updatedMusic);
     }
 
     public List<MusicResponse> findAll (PageRequestDTO pageRequestDTO, Long ministryId) {
-
         User user = currentUserProvider.getCurrentUser();
         MemberResponse member = memberService.findByUserIdAndMinistryId(user.getId(), ministryId);
 
