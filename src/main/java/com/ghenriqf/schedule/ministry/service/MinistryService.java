@@ -2,14 +2,17 @@ package com.ghenriqf.schedule.ministry.service;
 
 import com.ghenriqf.schedule.auth.context.CurrentUserProvider;
 import com.ghenriqf.schedule.auth.entity.User;
+import com.ghenriqf.schedule.common.exception.AccessDeniedException;
 import com.ghenriqf.schedule.common.exception.ResourceNotFoundException;
 import com.ghenriqf.schedule.member.dto.response.MemberResponse;
+import com.ghenriqf.schedule.member.entity.Member;
 import com.ghenriqf.schedule.member.service.MemberService;
 import com.ghenriqf.schedule.ministry.dto.request.MinistryRequest;
 import com.ghenriqf.schedule.ministry.dto.response.MinistryDetailResponse;
 import com.ghenriqf.schedule.ministry.dto.response.MinistryResponse;
 import com.ghenriqf.schedule.ministry.dto.response.MinistryStats;
 import com.ghenriqf.schedule.ministry.entity.Ministry;
+import com.ghenriqf.schedule.ministry.entity.MinistryRole;
 import com.ghenriqf.schedule.ministry.mapper.MinistryMapper;
 import com.ghenriqf.schedule.ministry.repository.MinistryRepository;
 import com.ghenriqf.schedule.music.service.MusicService;
@@ -20,6 +23,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +52,24 @@ public class MinistryService {
         memberService.createAdmin(currentUser, ministry);
 
         return MinistryMapper.toResponse(save);
+    }
+
+    public String generateInviteCode(Long ministryId) {
+        Ministry ministry = ministryRepository.findById(ministryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Ministry not found"));
+
+        User currentUser = currentUserProvider.getCurrentUser();
+        MemberResponse member = memberService.findByUserIdAndMinistryId(currentUser.getId(), ministryId);
+
+        if (!(member.role().equals(MinistryRole.ADMIN))) {
+            throw new AccessDeniedException("Only administrators can generate the link");
+        }
+
+        String inviteCode = UUID.randomUUID().toString();
+        ministry.setInviteCode(inviteCode);
+        ministryRepository.save(ministry);
+
+        return inviteCode;
     }
 
     @Transactional

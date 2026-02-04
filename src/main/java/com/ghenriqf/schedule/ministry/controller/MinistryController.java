@@ -29,6 +29,11 @@ public class MinistryController {
         return ResponseEntity.ok(ministryService.findAllByCurrentUser());
     }
 
+    @PostMapping("/{id}/invite-code")
+    public ResponseEntity<String> generateInviteCode (@PathVariable Long id) {
+        return ResponseEntity.ok(ministryService.generateInviteCode(id));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<MinistryDetailResponse> findDetailById (@PathVariable Long id) {
         return ResponseEntity.ok(ministryService.getDetailById(id));
