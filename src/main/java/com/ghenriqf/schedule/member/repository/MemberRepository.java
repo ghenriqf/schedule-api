@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface MemberRepository extends JpaRepository<Member, Long> {
     Long countByMinistryId(Long id);
     Optional<Member> findByUserIdAndMinistryId(Long userId, Long ministryId);
+    boolean existsByUserIdAndMinistryId(Long userId, Long ministryId);
 }
