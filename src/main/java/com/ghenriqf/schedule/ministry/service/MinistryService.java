@@ -5,7 +5,6 @@ import com.ghenriqf.schedule.auth.entity.User;
 import com.ghenriqf.schedule.common.exception.AccessDeniedException;
 import com.ghenriqf.schedule.common.exception.ResourceNotFoundException;
 import com.ghenriqf.schedule.member.dto.response.MemberResponse;
-import com.ghenriqf.schedule.member.entity.Member;
 import com.ghenriqf.schedule.member.service.MemberService;
 import com.ghenriqf.schedule.ministry.dto.request.MinistryRequest;
 import com.ghenriqf.schedule.ministry.dto.response.MinistryDetailResponse;

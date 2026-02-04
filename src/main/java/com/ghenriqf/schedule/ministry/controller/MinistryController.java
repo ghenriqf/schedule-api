@@ -1,5 +1,6 @@
 package com.ghenriqf.schedule.ministry.controller;
 
+import com.ghenriqf.schedule.member.service.MemberService;
 import com.ghenriqf.schedule.ministry.dto.request.MinistryRequest;
 import com.ghenriqf.schedule.ministry.dto.response.MinistryDetailResponse;
 import com.ghenriqf.schedule.ministry.dto.response.MinistryResponse;
@@ -18,6 +19,7 @@ import java.util.List;
 public class MinistryController {
 
     private final MinistryService ministryService;
+    private final MemberService memberService;
 
     @PostMapping
     public ResponseEntity<MinistryResponse> create(@Valid @RequestBody MinistryRequest request) {
@@ -32,6 +34,12 @@ public class MinistryController {
     @PostMapping("/{id}/invite-code")
     public ResponseEntity<String> generateInviteCode (@PathVariable Long id) {
         return ResponseEntity.ok(ministryService.generateInviteCode(id));
+    }
+
+    @PostMapping("/join/{inviteCode}")
+    public ResponseEntity<Void> join(@PathVariable String inviteCode) {
+        memberService.joinMinistry(inviteCode);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping("/{id}")
