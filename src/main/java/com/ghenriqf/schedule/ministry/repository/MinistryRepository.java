@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MinistryRepository extends JpaRepository<Ministry, Long> {
 
@@ -19,4 +20,5 @@ public interface MinistryRepository extends JpaRepository<Ministry, Long> {
         WHERE m.user.id = :userId
     """)
     List<MinistryResponse> findMinistriesByUserId(Long userId);
+    Optional<Ministry> findByInviteCode(String inviteCode);
 }
