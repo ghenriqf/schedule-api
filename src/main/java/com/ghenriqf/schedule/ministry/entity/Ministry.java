@@ -35,4 +35,7 @@ public class Ministry {
 
     @OneToMany(mappedBy = "ministry")
     private Set<Member> members;
+
+    @Column(unique = true, length = 36)
+    private String inviteCode;
 }
