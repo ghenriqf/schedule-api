@@ -51,4 +51,8 @@ public class Scale {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ministry_id", nullable = false)
     private Ministry ministry;
+
+    @ManyToOne
+    @JoinColumn(name = "leader_id")
+    private Member leader;
 }

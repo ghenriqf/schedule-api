@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public record ScaleRequest(
         @NotEmpty(message = "Name is required") String name,
         String description,
-        @Future LocalDateTime date
+        @Future LocalDateTime date,
+        Long leaderId
 ) {
 }
