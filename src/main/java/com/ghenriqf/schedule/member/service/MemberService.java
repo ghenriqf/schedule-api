@@ -64,10 +64,8 @@ public class MemberService {
         return memberRepository.countByMinistryId(id);
     }
 
-    public MemberResponse findByUserIdAndMinistryId (Long userId, Long ministryId) {
-        Member member = memberRepository.findByUserIdAndMinistryId(userId, ministryId)
+    public Member findByUserIdAndMinistryId (Long userId, Long ministryId) {
+        return memberRepository.findByUserIdAndMinistryId(userId, ministryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Member not found"));
-
-        return MemberMapper.toResponse(member);
     }
 }

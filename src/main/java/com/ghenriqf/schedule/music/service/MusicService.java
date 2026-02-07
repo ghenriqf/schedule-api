@@ -5,7 +5,7 @@ import com.ghenriqf.schedule.auth.entity.User;
 import com.ghenriqf.schedule.common.dto.PageRequestDTO;
 import com.ghenriqf.schedule.common.exception.AccessDeniedException;
 import com.ghenriqf.schedule.common.exception.ResourceNotFoundException;
-import com.ghenriqf.schedule.member.dto.response.MemberResponse;
+import com.ghenriqf.schedule.member.entity.Member;
 import com.ghenriqf.schedule.member.service.MemberService;
 import com.ghenriqf.schedule.ministry.entity.MinistryRole;
 import com.ghenriqf.schedule.ministry.repository.MinistryRepository;
@@ -30,9 +30,9 @@ public class MusicService {
 
     public MusicResponse save (Long ministryId, MusicRequest musicRequest) {
         User user = currentUserProvider.getCurrentUser();
-        MemberResponse member = memberService.findByUserIdAndMinistryId(user.getId(), ministryId);
+        Member member = memberService.findByUserIdAndMinistryId(user.getId(), ministryId);
 
-        if (!(member.role().equals(MinistryRole.ADMIN))) {
+        if (!(member.getRole().equals(MinistryRole.ADMIN))) {
             throw new AccessDeniedException("Only administrators can add song");
         }
 
@@ -48,7 +48,7 @@ public class MusicService {
 
     public MusicResponse findById (Long musicId, Long ministryId) {
         User user = currentUserProvider.getCurrentUser();
-        MemberResponse member = memberService.findByUserIdAndMinistryId(user.getId(), ministryId);
+        Member member = memberService.findByUserIdAndMinistryId(user.getId(), ministryId);
 
         Music music = musicRepository.findById(musicId)
                 .orElseThrow(() -> new ResourceNotFoundException("Song not found"));
@@ -62,9 +62,9 @@ public class MusicService {
 
     public void delete(Long musicId, Long ministryId) {
         User user = currentUserProvider.getCurrentUser();
-        MemberResponse member = memberService.findByUserIdAndMinistryId(user.getId(), ministryId);
+        Member member = memberService.findByUserIdAndMinistryId(user.getId(), ministryId);
 
-        if (member.role() != MinistryRole.ADMIN) {
+        if (member.getRole() != MinistryRole.ADMIN) {
             throw new AccessDeniedException("Only administrators can delete songs");
         }
 
@@ -80,9 +80,9 @@ public class MusicService {
 
     public MusicResponse update (MusicRequest musicRequest, Long musicId , Long ministryId) {
         User user = currentUserProvider.getCurrentUser();
-        MemberResponse member = memberService.findByUserIdAndMinistryId(user.getId(), ministryId);
+        Member member = memberService.findByUserIdAndMinistryId(user.getId(), ministryId);
 
-        if (member.role() != MinistryRole.ADMIN) {
+        if (member.getRole() != MinistryRole.ADMIN) {
             throw new AccessDeniedException("Only administrators can update songs");
         }
 
@@ -101,9 +101,9 @@ public class MusicService {
 
     public List<MusicResponse> findAll (PageRequestDTO pageRequestDTO, Long ministryId) {
         User user = currentUserProvider.getCurrentUser();
-        MemberResponse member = memberService.findByUserIdAndMinistryId(user.getId(), ministryId);
+        Member member = memberService.findByUserIdAndMinistryId(user.getId(), ministryId);
 
-        if (!(member.ministryId().equals(ministryId))) {
+        if (!(member.getMinistry().getId().equals(ministryId))) {
             throw new AccessDeniedException("User does not belong to the ministry");
         }
 

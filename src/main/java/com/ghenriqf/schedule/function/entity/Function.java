@@ -1,4 +1,4 @@
-package com.ghenriqf.schedule.function;
+package com.ghenriqf.schedule.function.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
