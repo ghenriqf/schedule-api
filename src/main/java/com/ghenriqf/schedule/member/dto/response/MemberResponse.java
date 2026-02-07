@@ -1,6 +1,6 @@
 package com.ghenriqf.schedule.member.dto.response;
 
-import com.ghenriqf.schedule.function.Function;
+import com.ghenriqf.schedule.function.entity.Function;
 import com.ghenriqf.schedule.ministry.entity.MinistryRole;
 import lombok.Builder;
 

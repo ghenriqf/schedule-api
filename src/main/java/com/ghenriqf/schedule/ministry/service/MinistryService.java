@@ -5,6 +5,7 @@ import com.ghenriqf.schedule.auth.entity.User;
 import com.ghenriqf.schedule.common.exception.AccessDeniedException;
 import com.ghenriqf.schedule.common.exception.ResourceNotFoundException;
 import com.ghenriqf.schedule.member.dto.response.MemberResponse;
+import com.ghenriqf.schedule.member.entity.Member;
 import com.ghenriqf.schedule.member.service.MemberService;
 import com.ghenriqf.schedule.ministry.dto.request.MinistryRequest;
 import com.ghenriqf.schedule.ministry.dto.response.MinistryDetailResponse;
@@ -58,9 +59,9 @@ public class MinistryService {
                 .orElseThrow(() -> new ResourceNotFoundException("Ministry not found"));
 
         User currentUser = currentUserProvider.getCurrentUser();
-        MemberResponse member = memberService.findByUserIdAndMinistryId(currentUser.getId(), ministryId);
+        Member member = memberService.findByUserIdAndMinistryId(currentUser.getId(), ministryId);
 
-        if (!(member.role().equals(MinistryRole.ADMIN))) {
+        if (!(member.getRole().equals(MinistryRole.ADMIN))) {
             throw new AccessDeniedException("Only administrators can generate the link");
         }
 
@@ -82,7 +83,7 @@ public class MinistryService {
                 .orElseThrow(() ->new ResourceNotFoundException("Ministry not found with id: " + id));
 
         User currentUser = currentUserProvider.getCurrentUser();
-        MemberResponse member = memberService.findByUserIdAndMinistryId(currentUser.getId(), id);
+        Member member = memberService.findByUserIdAndMinistryId(currentUser.getId(), id);
 
         MinistryStats stats = new MinistryStats(
                 memberService.countByMinistryId(id),
@@ -95,7 +96,7 @@ public class MinistryService {
                 ministry.getName(),
                 ministry.getDescription(),
                 stats,
-                member.role()
+                member.getRole()
         );
     }
 }
