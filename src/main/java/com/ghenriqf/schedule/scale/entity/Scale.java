@@ -32,13 +32,8 @@ public class Scale {
     @Column(nullable = false)
     private LocalDateTime date;
 
-    @ManyToMany
-    @JoinTable(
-            name = "scale_members",
-            joinColumns = @JoinColumn(name = "scale_id"),
-            inverseJoinColumns = @JoinColumn(name = "member_id")
-    )
-    private Set<Member> participants;
+    @OneToMany(mappedBy = "scale", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ScaleMember> members;
 
     @ManyToMany
     @JoinTable(
