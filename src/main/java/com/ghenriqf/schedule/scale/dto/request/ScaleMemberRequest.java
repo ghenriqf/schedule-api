@@ -1,9 +1,8 @@
-    package com.ghenriqf.schedule.scale.dto.request;
+package com.ghenriqf.schedule.scale.dto.request;
 
-    import java.util.Set;
+import java.util.Set;
 
-    public record ScaleMemberRequest(
-            Long memberId,
-            Set<Long> functionIds
-    ) {
-    }
+public record ScaleMemberRequest(
+    Set<Long> functionIds
+) {
+}
