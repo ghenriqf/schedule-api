@@ -1,7 +1,9 @@
 package com.ghenriqf.schedule.scale.controller;
 
 import com.ghenriqf.schedule.music.dto.response.MusicResponse;
+import com.ghenriqf.schedule.scale.dto.request.ScaleMemberRequest;
 import com.ghenriqf.schedule.scale.dto.request.ScaleRequest;
+import com.ghenriqf.schedule.scale.dto.response.ScaleMemberResponse;
 import com.ghenriqf.schedule.scale.dto.response.ScaleResponse;
 import com.ghenriqf.schedule.scale.service.ScaleService;
 import lombok.RequiredArgsConstructor;
@@ -22,11 +24,20 @@ public class ScaleController {
 
     @PostMapping("/scales/{scaleId}/musics/{musicId}")
     public ResponseEntity<MusicResponse> addMusic (@PathVariable Long scaleId, @PathVariable Long musicId) {
-        return ResponseEntity.ok().body(scaleService.addMusic(musicId, scaleId));
+        return ResponseEntity.status(HttpStatus.CREATED).body(scaleService.addMusic(musicId, scaleId));
     }
 
     @DeleteMapping("/scales/{scaleId}/musics/{musicId}")
     public ResponseEntity<MusicResponse> removeMusic (@PathVariable Long scaleId, @PathVariable Long musicId) {
         return ResponseEntity.ok().body(scaleService.removeMusic(musicId, scaleId));
+    }
+
+    @PostMapping("/scales/{scaleId}/members/{memberId}")
+    public ResponseEntity<ScaleMemberResponse> addMember (
+            @PathVariable Long scaleId,
+            @PathVariable Long memberId,
+            @RequestBody ScaleMemberRequest scaleMemberRequest
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(scaleService.addMember(scaleId, memberId, scaleMemberRequest));
     }
 }
