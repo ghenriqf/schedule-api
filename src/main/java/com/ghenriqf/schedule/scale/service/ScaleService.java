@@ -19,11 +19,14 @@ import com.ghenriqf.schedule.music.mapper.MusicMapper;
 import com.ghenriqf.schedule.music.repository.MusicRepository;
 import com.ghenriqf.schedule.scale.dto.request.ScaleMemberRequest;
 import com.ghenriqf.schedule.scale.dto.request.ScaleRequest;
+import com.ghenriqf.schedule.scale.dto.response.ScaleMemberResponse;
 import com.ghenriqf.schedule.scale.dto.response.ScaleResponse;
 import com.ghenriqf.schedule.scale.entity.Scale;
 import com.ghenriqf.schedule.scale.entity.ScaleMember;
 import com.ghenriqf.schedule.scale.mapper.ScaleMapper;
+import com.ghenriqf.schedule.scale.repository.ScaleMemberRepository;
 import com.ghenriqf.schedule.scale.repository.ScaleRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +34,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +47,8 @@ public class ScaleService {
     private final MusicRepository musicRepository;
     private final FunctionRepository functionRepository;
     private final MemberRepository memberRepository;
+    private final ScaleMemberRepository scaleMemberRepository;
+
 
     public ScaleResponse create (ScaleRequest scaleRequest, Long ministryId) {
         User currentUser = currentUserProvider.getCurrentUser();
@@ -102,36 +108,45 @@ public class ScaleService {
         return MusicMapper.toResponse(music);
     }
 
-    public MemberResponse addMember (Long scaleId, Long memberId, ScaleMemberRequest request) {
+    @Transactional
+    public ScaleMemberResponse addMember (Long scaleId, Long memberId, ScaleMemberRequest request) {
         Scale scale = scaleRepository.findById(scaleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Scale not found with id: " + scaleId));
 
         User currentUser = currentUserProvider.getCurrentUser();
-        Member member = memberService.findByUserIdAndMinistryId(currentUser.getId(), scale.getMinistry().getId());
+        Member admin = memberService.findByUserIdAndMinistryId(currentUser.getId(), scale.getMinistry().getId());
 
-        if (!(member.getRole().equals(MinistryRole.ADMIN))) {
+        if (!(admin.getRole().equals(MinistryRole.ADMIN))) {
             throw new AccessDeniedException("Only the leader can add member");
         }
 
-        Set<Function> functions = new HashSet<>();
-
-        request.functionIds().forEach(id -> {
-            Function f = functionRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Function not found with id: " + id));
-            functions.add(f);
-        });
-
-        Member memberScale = memberRepository.findById(memberId)
+        List<Function> functions = functionRepository.findAllById(request.functionIds());
+        if (functions.size() != request.functionIds().size()) {
+            throw new ResourceNotFoundException("One or more functions not found");
+        }
+        Member memberToBeScaled = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ResourceNotFoundException("Member not found with id: " + memberId));
 
         ScaleMember scaleMember = ScaleMember
                 .builder()
                 .scale(scale)
-                .member(memberScale)
-                .functions(functions)
+                .member(memberToBeScaled)
+                .functions(new HashSet<>(functions))
                 .build();
 
-        return MemberMapper.toResponse(member);
+        ScaleMember saved = scaleMemberRepository.save(scaleMember);
+
+        return ScaleMemberResponse
+                .builder()
+                .id(saved.getId())
+                .memberId(saved.getMember().getId())
+                .memberName(saved.getMember().getUser().getName())
+                .functions(
+                        saved.getFunctions()
+                        .stream()
+                        .map(Function::getName)
+                        .collect(Collectors.toSet()))
+                .build();
     }
 
     public Long countByMinistryIdAndDateAfter (Long id, LocalDateTime date) {
