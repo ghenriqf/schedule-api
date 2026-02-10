@@ -15,7 +15,7 @@ public record ScaleResponse(
         String name,
         String description,
         LocalDateTime date,
-        Set<MemberResponse> participants,
+        Set<ScaleMemberResponse> members,
         List<MusicResponse> musics
 ) {
 }

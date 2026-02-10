@@ -48,6 +48,6 @@ public class Scale {
     private Ministry ministry;
 
     @ManyToOne
-    @JoinColumn(name = "leader_id")
-    private Member leader;
+    @JoinColumn(name = "minister_id")
+    private Member minister;
 }
