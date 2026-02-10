@@ -5,6 +5,7 @@ import com.ghenriqf.schedule.scale.dto.request.ScaleMemberRequest;
 import com.ghenriqf.schedule.scale.dto.request.ScaleRequest;
 import com.ghenriqf.schedule.scale.dto.response.ScaleMemberResponse;
 import com.ghenriqf.schedule.scale.dto.response.ScaleResponse;
+import com.ghenriqf.schedule.scale.dto.response.ScaleSummaryResponse;
 import com.ghenriqf.schedule.scale.service.ScaleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,7 @@ public class ScaleController {
     private final ScaleService scaleService;
 
     @PostMapping("/ministries/{ministryId}/scales")
-    public ResponseEntity<ScaleResponse> create (@RequestBody ScaleRequest scaleRequest, @PathVariable Long ministryId) {
+    public ResponseEntity<ScaleSummaryResponse> create (@RequestBody ScaleRequest scaleRequest, @PathVariable Long ministryId) {
         return ResponseEntity.status(HttpStatus.CREATED).body(scaleService.create(scaleRequest, ministryId));
     }
 

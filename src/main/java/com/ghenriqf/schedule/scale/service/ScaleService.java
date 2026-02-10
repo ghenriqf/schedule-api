@@ -6,9 +6,7 @@ import com.ghenriqf.schedule.common.exception.AccessDeniedException;
 import com.ghenriqf.schedule.common.exception.ResourceNotFoundException;
 import com.ghenriqf.schedule.function.entity.Function;
 import com.ghenriqf.schedule.function.repository.FunctionRepository;
-import com.ghenriqf.schedule.member.dto.response.MemberResponse;
 import com.ghenriqf.schedule.member.entity.Member;
-import com.ghenriqf.schedule.member.mapper.MemberMapper;
 import com.ghenriqf.schedule.member.repository.MemberRepository;
 import com.ghenriqf.schedule.member.service.MemberService;
 import com.ghenriqf.schedule.ministry.entity.MinistryRole;
@@ -20,10 +18,11 @@ import com.ghenriqf.schedule.music.repository.MusicRepository;
 import com.ghenriqf.schedule.scale.dto.request.ScaleMemberRequest;
 import com.ghenriqf.schedule.scale.dto.request.ScaleRequest;
 import com.ghenriqf.schedule.scale.dto.response.ScaleMemberResponse;
-import com.ghenriqf.schedule.scale.dto.response.ScaleResponse;
+import com.ghenriqf.schedule.scale.dto.response.ScaleSummaryResponse;
 import com.ghenriqf.schedule.scale.entity.Scale;
 import com.ghenriqf.schedule.scale.entity.ScaleMember;
 import com.ghenriqf.schedule.scale.mapper.ScaleMapper;
+import com.ghenriqf.schedule.scale.mapper.ScaleMemberMapper;
 import com.ghenriqf.schedule.scale.repository.ScaleMemberRepository;
 import com.ghenriqf.schedule.scale.repository.ScaleRepository;
 import jakarta.transaction.Transactional;
@@ -33,8 +32,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -50,7 +47,7 @@ public class ScaleService {
     private final ScaleMemberRepository scaleMemberRepository;
 
 
-    public ScaleResponse create (ScaleRequest scaleRequest, Long ministryId) {
+    public ScaleSummaryResponse create (ScaleRequest scaleRequest, Long ministryId) {
         User currentUser = currentUserProvider.getCurrentUser();
         Member member = memberService.findByUserIdAndMinistryId(currentUser.getId(), ministryId);
 
@@ -58,14 +55,19 @@ public class ScaleService {
             throw new AccessDeniedException("Only administrators can create a scale");
         }
 
-        Scale scale = ScaleMapper.toEntity(scaleRequest);
+        Scale scale = ScaleMapper.toEntity(
+                scaleRequest,
+                memberRepository.findById(scaleRequest.ministerId())
+                        .orElseThrow(() -> new ResourceNotFoundException(
+                                "Minister not found with id: " + scaleRequest.ministerId())
+                        ));
 
         scale.setMinistry(ministryRepository.findById(ministryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Ministry not found with id: " + ministryId)));
 
         Scale save = scaleRepository.save(scale);
 
-        return ScaleMapper.toResponse(save);
+        return ScaleMapper.toSummaryResponse(save);
     }
 
     public MusicResponse addMusic (Long musicId, Long scaleId) {
@@ -75,7 +77,7 @@ public class ScaleService {
         User currentUser = currentUserProvider.getCurrentUser();
         Member member = memberService.findByUserIdAndMinistryId(currentUser.getId(), scale.getMinistry().getId());
 
-        if (!(scale.getLeader().getId().equals(member.getId()) || member.getRole().equals(MinistryRole.ADMIN))) {
+        if (!(scale.getMinister().getId().equals(member.getId()) || member.getRole().equals(MinistryRole.ADMIN))) {
             throw new AccessDeniedException("Only the leader can add song");
         }
 
@@ -95,7 +97,7 @@ public class ScaleService {
         User currentUser = currentUserProvider.getCurrentUser();
         Member member = memberService.findByUserIdAndMinistryId(currentUser.getId(), scale.getMinistry().getId());
 
-        if (!(scale.getLeader().getId().equals(member.getId()) || member.getRole().equals(MinistryRole.ADMIN))) {
+        if (!(scale.getMinister().getId().equals(member.getId()) || member.getRole().equals(MinistryRole.ADMIN))) {
             throw new AccessDeniedException("Only the leader can remove song");
         }
 
@@ -136,17 +138,7 @@ public class ScaleService {
 
         ScaleMember saved = scaleMemberRepository.save(scaleMember);
 
-        return ScaleMemberResponse
-                .builder()
-                .id(saved.getId())
-                .memberId(saved.getMember().getId())
-                .memberName(saved.getMember().getUser().getName())
-                .functions(
-                        saved.getFunctions()
-                        .stream()
-                        .map(Function::getName)
-                        .collect(Collectors.toSet()))
-                .build();
+        return ScaleMemberMapper.toResponse(saved);
     }
 
     public Long countByMinistryIdAndDateAfter (Long id, LocalDateTime date) {
