@@ -48,7 +48,7 @@ public class MusicService {
 
     public MusicResponse findById (Long musicId, Long ministryId) {
         User user = currentUserProvider.getCurrentUser();
-        Member member = memberService.findByUserIdAndMinistryId(user.getId(), ministryId);
+        memberService.verifyIfUserIsMemberOfMinistry(user.getId(), ministryId);
 
         Music music = musicRepository.findById(musicId)
                 .orElseThrow(() -> new ResourceNotFoundException("Song not found"));

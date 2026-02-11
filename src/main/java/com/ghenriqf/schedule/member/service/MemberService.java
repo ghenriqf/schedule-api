@@ -2,6 +2,7 @@ package com.ghenriqf.schedule.member.service;
 
 import com.ghenriqf.schedule.auth.context.CurrentUserProvider;
 import com.ghenriqf.schedule.auth.entity.User;
+import com.ghenriqf.schedule.common.exception.AccessDeniedException;
 import com.ghenriqf.schedule.common.exception.ResourceNotFoundException;
 import com.ghenriqf.schedule.member.dto.response.MemberResponse;
 import com.ghenriqf.schedule.member.entity.Member;
@@ -60,12 +61,18 @@ public class MemberService {
         this.create(currentUser, ministry);
     }
 
-    public Long countByMinistryId (Long id) {
-        return memberRepository.countByMinistryId(id);
-    }
-
     public Member findByUserIdAndMinistryId (Long userId, Long ministryId) {
         return memberRepository.findByUserIdAndMinistryId(userId, ministryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Member not found"));
+    }
+
+    public void verifyIfUserIsMemberOfMinistry (Long userId, Long ministryId) {
+        if (!(memberRepository.existsByUserIdAndMinistryId(userId, ministryId))) {
+            throw new AccessDeniedException("Access to this ministry is for members only");
+        }
+    }
+
+    public Long countByMinistryId (Long id) {
+        return memberRepository.countByMinistryId(id);
     }
 }
