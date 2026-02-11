@@ -18,6 +18,7 @@ import com.ghenriqf.schedule.music.repository.MusicRepository;
 import com.ghenriqf.schedule.scale.dto.request.ScaleMemberRequest;
 import com.ghenriqf.schedule.scale.dto.request.ScaleRequest;
 import com.ghenriqf.schedule.scale.dto.response.ScaleMemberResponse;
+import com.ghenriqf.schedule.scale.dto.response.ScaleResponse;
 import com.ghenriqf.schedule.scale.dto.response.ScaleSummaryResponse;
 import com.ghenriqf.schedule.scale.entity.Scale;
 import com.ghenriqf.schedule.scale.entity.ScaleMember;
@@ -70,6 +71,31 @@ public class ScaleService {
         return ScaleMapper.toSummaryResponse(save);
     }
 
+    public ScaleResponse findById (Long ministryId, Long scaleId) {
+        User currentUser = currentUserProvider.getCurrentUser();
+        memberService.verifyIfUserIsMemberOfMinistry(currentUser.getId(), ministryId);
+
+        return ScaleMapper
+                .toResponse(
+                        scaleRepository.findByIdAndMinistryId(scaleId, ministryId)
+                                .orElseThrow(() -> new ResourceNotFoundException("Scale not found")
+                        )
+                );
+    }
+
+    public List<ScaleSummaryResponse> listAllByAfterDate (Long ministryId, LocalDateTime date) {
+        User currentUser = currentUserProvider.getCurrentUser();
+        memberService.verifyIfUserIsMemberOfMinistry(currentUser.getId(), ministryId);
+
+        LocalDateTime dateTime = (date != null) ? date : LocalDateTime.now();
+        List<Scale> scales = scaleRepository.findUpcomingScales(ministryId, dateTime);
+
+        return scales
+                .stream()
+                .map(ScaleMapper::toSummaryResponse)
+                .toList();
+    }
+
     public MusicResponse addMusic (Long musicId, Long scaleId) {
         Scale scale = scaleRepository.findById(scaleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Scale not found"));
@@ -90,7 +116,7 @@ public class ScaleService {
         return MusicMapper.toResponse(music);
     }
 
-    public MusicResponse removeMusic (Long musicId, Long scaleId) {
+    public MusicResponse removeMusic (Long scaleId, Long musicId) {
         Scale scale = scaleRepository.findById(scaleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Scale not found"));
 
