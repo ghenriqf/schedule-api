@@ -42,7 +42,6 @@ public class MusicService {
                 .orElseThrow(() -> new ResourceNotFoundException("Ministry not found")));
 
         Music saved = musicRepository.save(music);
-
         return MusicMapper.toResponse(saved);
     }
 

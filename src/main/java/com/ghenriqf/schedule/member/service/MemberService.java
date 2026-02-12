@@ -22,7 +22,7 @@ public class MemberService {
     private final CurrentUserProvider currentUserProvider;
     private final MinistryRepository ministryRepository;
 
-    public MemberResponse createAdmin (User user, Ministry ministry) {
+    public void createAdmin (User user, Ministry ministry) {
         Member member = Member
                 .builder()
                 .user(user)
@@ -30,9 +30,7 @@ public class MemberService {
                 .role(MinistryRole.ADMIN)
                 .build();
 
-        Member save = memberRepository.save(member);
-
-        return MemberMapper.toResponse(save);
+        memberRepository.save(member);
     }
 
     public MemberResponse create (User user, Ministry ministry) {
@@ -44,7 +42,6 @@ public class MemberService {
                 .build();
 
         Member save = memberRepository.save(member);
-
         return MemberMapper.toResponse(save);
     }
 
