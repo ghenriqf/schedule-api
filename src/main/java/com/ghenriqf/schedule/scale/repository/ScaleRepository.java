@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface ScaleRepository extends JpaRepository<Scale, Long> {
     Long countByMinistryIdAndDateAfter(Long id, LocalDateTime date);
     Optional<Scale> findByIdAndMinistryId(Long scaleId, Long ministryId);
-
+    boolean existsByScaleIdAndMemberId(Long scaleId, Long memberId);
     @Query("SELECT DISTINCT s FROM Scale s " +
             "LEFT JOIN FETCH s.members sm " +
             "LEFT JOIN FETCH sm.functions " +
