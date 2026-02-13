@@ -16,6 +16,7 @@ import com.ghenriqf.schedule.music.entity.Music;
 import com.ghenriqf.schedule.music.repository.MusicRepository;
 import com.ghenriqf.schedule.scale.dto.request.ScaleMemberRequest;
 import com.ghenriqf.schedule.scale.dto.request.ScaleRequest;
+import com.ghenriqf.schedule.scale.dto.request.ScaleUpdateRequest;
 import com.ghenriqf.schedule.scale.dto.response.ScaleResponse;
 import com.ghenriqf.schedule.scale.dto.response.ScaleSummaryResponse;
 import com.ghenriqf.schedule.scale.entity.Scale;
@@ -65,6 +66,56 @@ public class ScaleService {
 
         Scale save = scaleRepository.save(scale);
         return ScaleMapper.toSummaryResponse(save);
+    }
+
+    @Transactional
+    public ScaleResponse update (Long ministryId, Long scaleId, ScaleUpdateRequest scaleUpdateRequest) {
+        User currentUser = currentUserProvider.getCurrentUser();
+        Member member = memberService.findByUserIdAndMinistryId(currentUser.getId(), ministryId);
+
+        if (!(member.getRole().equals(MinistryRole.ADMIN))) {
+            throw new AccessDeniedException("Only administrators can update a scale");
+        }
+
+        Scale scale = scaleRepository.findByIdAndMinistryId(scaleId, ministryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Scale not found in this ministry"));
+
+        if (scaleUpdateRequest.name() != null) {
+            scale.setName(scaleUpdateRequest.name());
+        }
+        if (scaleUpdateRequest.description() != null) {
+            scale.setDescription(scaleUpdateRequest.description());
+        }
+        if (scaleUpdateRequest.date() != null) {
+            scale.setDate(scaleUpdateRequest.date());
+        }
+        if (scaleUpdateRequest.ministerId() != null) {
+            scale.setMinister(memberRepository.findByIdAndMinistryId(scaleUpdateRequest.ministerId(), ministryId)
+                    .orElseThrow(
+                            () -> new ResourceNotFoundException(
+                                    "Minister not found in this ministry with id: " + scaleUpdateRequest.ministerId()
+                            )
+                    )
+            );
+        }
+
+        Scale save = scaleRepository.save(scale);
+        return ScaleMapper.toResponse(save);
+    }
+
+    @Transactional
+    public void delete (Long ministryId, Long scaleId) {
+        User currentUser = currentUserProvider.getCurrentUser();
+        Member member = memberService.findByUserIdAndMinistryId(currentUser.getId(), ministryId);
+
+        if (!(member.getRole().equals(MinistryRole.ADMIN))) {
+            throw new AccessDeniedException("Only administrators can delete a scale");
+        }
+
+        Scale scale = scaleRepository.findByIdAndMinistryId(scaleId, ministryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Scale not found in this ministry"));
+
+        scaleRepository.delete(scale);
     }
 
     public ScaleResponse findById (Long ministryId, Long scaleId) {

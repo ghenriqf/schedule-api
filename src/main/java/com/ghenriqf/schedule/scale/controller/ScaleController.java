@@ -2,6 +2,7 @@ package com.ghenriqf.schedule.scale.controller;
 
 import com.ghenriqf.schedule.scale.dto.request.ScaleMemberRequest;
 import com.ghenriqf.schedule.scale.dto.request.ScaleRequest;
+import com.ghenriqf.schedule.scale.dto.request.ScaleUpdateRequest;
 import com.ghenriqf.schedule.scale.dto.response.ScaleResponse;
 import com.ghenriqf.schedule.scale.dto.response.ScaleSummaryResponse;
 import com.ghenriqf.schedule.scale.service.ScaleService;
@@ -23,6 +24,17 @@ public class ScaleController {
     @PostMapping("/ministries/{ministryId}/scales")
     public ResponseEntity<ScaleSummaryResponse> create (@Valid @RequestBody ScaleRequest scaleRequest, @PathVariable Long ministryId) {
         return ResponseEntity.status(HttpStatus.CREATED).body(scaleService.create(scaleRequest, ministryId));
+    }
+
+    @PatchMapping("/ministries/{ministryId}/scales/{scaleId}")
+    public ResponseEntity<ScaleResponse> update (@PathVariable Long ministryId, @PathVariable Long scaleId, @RequestBody ScaleUpdateRequest scaleUpdateRequest) {
+        return ResponseEntity.ok(scaleService.update(ministryId, scaleId, scaleUpdateRequest));
+    }
+
+    @DeleteMapping("/ministries/{ministryId}/scales/{scaleId}")
+    public ResponseEntity<ScaleResponse> delete (@PathVariable Long ministryId, @PathVariable Long scaleId) {
+        scaleService.delete(ministryId, scaleId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @GetMapping("/ministries/{ministryId}/scales")
