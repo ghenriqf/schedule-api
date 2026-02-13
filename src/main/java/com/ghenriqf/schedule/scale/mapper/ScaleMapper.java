@@ -1,6 +1,7 @@
 package com.ghenriqf.schedule.scale.mapper;
 
 import com.ghenriqf.schedule.member.entity.Member;
+import com.ghenriqf.schedule.music.mapper.MusicMapper;
 import com.ghenriqf.schedule.scale.dto.request.ScaleRequest;
 import com.ghenriqf.schedule.scale.dto.response.ScaleResponse;
 import com.ghenriqf.schedule.scale.dto.response.ScaleSummaryResponse;
@@ -25,6 +26,10 @@ public class ScaleMapper {
                         .stream()
                         .map(ScaleMemberMapper::toResponse)
                         .collect(Collectors.toSet()))
+                .musics(entity.getMusics()
+                        .stream()
+                        .map(MusicMapper::toResponse)
+                        .collect(Collectors.toList()))
                 .build();
     }
 
