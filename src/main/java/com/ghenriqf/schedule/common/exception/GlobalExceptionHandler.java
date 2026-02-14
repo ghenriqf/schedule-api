@@ -84,4 +84,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errors);
     }
 
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ExceptionReponse> handleConflictException (ConflictException exception) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ExceptionReponse
+                        .builder()
+                        .code(HttpStatus.CONFLICT.toString())
+                        .message(exception.getMessage())
+                        .status(HttpStatus.CONFLICT.value())
+                        .build());
+    }
 }
