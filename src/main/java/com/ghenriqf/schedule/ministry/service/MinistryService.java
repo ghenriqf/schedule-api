@@ -7,6 +7,7 @@ import com.ghenriqf.schedule.common.exception.ResourceNotFoundException;
 import com.ghenriqf.schedule.member.entity.Member;
 import com.ghenriqf.schedule.member.service.MemberService;
 import com.ghenriqf.schedule.ministry.dto.request.MinistryRequest;
+import com.ghenriqf.schedule.ministry.dto.request.MinistryUpdateRequest;
 import com.ghenriqf.schedule.ministry.dto.response.MinistryDetailResponse;
 import com.ghenriqf.schedule.ministry.dto.response.MinistryResponse;
 import com.ghenriqf.schedule.ministry.dto.response.MinistryStats;
@@ -50,6 +51,44 @@ public class MinistryService {
         memberService.createAdmin(currentUser, ministry);
 
         return MinistryMapper.toResponse(save);
+    }
+
+    @Transactional
+    public MinistryResponse update (Long ministryId, MinistryUpdateRequest request) {
+        User currentUser = currentUserProvider.getCurrentUser();
+        Member member = memberService.findByUserIdAndMinistryId(currentUser.getId(), ministryId);
+
+        if (!(member.getRole().equals(MinistryRole.ADMIN))) {
+            throw new AccessDeniedException("Only administrators can update ministry");
+        }
+
+        Ministry ministry = ministryRepository.findById(ministryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Ministry not found with id: " + ministryId));
+
+        if (request.name() != null) {
+            ministry.setName(request.name());
+        }
+        if (request.description() != null) {
+            ministry.setDescription(request.description());
+        }
+
+        Ministry save = ministryRepository.save(ministry);
+        return MinistryMapper.toResponse(save);
+    }
+
+    @Transactional
+    public void delete (Long ministryId) {
+        User currentUser = currentUserProvider.getCurrentUser();
+        Member member = memberService.findByUserIdAndMinistryId(currentUser.getId(), ministryId);
+
+        if (!(member.getRole().equals(MinistryRole.ADMIN))) {
+            throw new AccessDeniedException("Only administrators can delete ministry");
+        }
+
+        Ministry ministry = ministryRepository.findById(ministryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Ministry not found with id: " + ministryId));
+
+        ministryRepository.delete(ministry);
     }
 
     public String generateInviteCode(Long ministryId) {
