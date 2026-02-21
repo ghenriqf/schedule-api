@@ -3,6 +3,7 @@ package com.ghenriqf.schedule.auth.dto.request;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
 import lombok.Builder;
 import org.hibernate.validator.constraints.Length;
 
@@ -22,6 +23,8 @@ public record UserRequest(
         @Length(min = 8, max = 250, message = "Password must have at least 8 characters")
         String password,
 
-        @NotNull(message = "Birth data is required") LocalDate birth
+        @NotNull(message = "Birth data is required")
+        @Past(message = "date of birth is not valid")
+        LocalDate birth
 ){
 }
