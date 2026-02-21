@@ -1,5 +1,6 @@
 package com.ghenriqf.schedule.common.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -13,10 +14,10 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ExceptionReponse> handleGeneralException(Exception exception) {
+    public ResponseEntity<ExceptionResponse> handleGeneralException(Exception exception) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ExceptionReponse.builder()
+                .body(ExceptionResponse.builder()
                         .code(HttpStatus.INTERNAL_SERVER_ERROR.toString())
                         .message("An unexpected internal error occurred.")
                         .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
@@ -24,10 +25,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ExceptionReponse> handleResourceNotFoundException (ResourceNotFoundException exception) {
+    public ResponseEntity<ExceptionResponse> handleResourceNotFoundException (ResourceNotFoundException exception) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(ExceptionReponse
+                .body(ExceptionResponse
                         .builder()
                         .code(HttpStatus.NOT_FOUND.toString())
                         .message(exception.getMessage())
@@ -36,10 +37,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ExceptionReponse> handleAccessDeniedException (AccessDeniedException exception) {
+    public ResponseEntity<ExceptionResponse> handleAccessDeniedException (AccessDeniedException exception) {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
-                .body(ExceptionReponse
+                .body(ExceptionResponse
                         .builder()
                         .code(HttpStatus.FORBIDDEN.toString())
                         .message(exception.getMessage())
@@ -48,10 +49,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UnauthenticatedException.class)
-    public ResponseEntity<ExceptionReponse> handleUnauthenticatedException (UnauthenticatedException exception) {
+    public ResponseEntity<ExceptionResponse> handleUnauthenticatedException (UnauthenticatedException exception) {
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
-                .body(ExceptionReponse
+                .body(ExceptionResponse
                         .builder()
                         .code(HttpStatus.UNAUTHORIZED.toString())
                         .message(exception.getMessage())
@@ -60,10 +61,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidTokenException.class)
-    public ResponseEntity<ExceptionReponse> handleInvalidTokenException (InvalidTokenException exception) {
+    public ResponseEntity<ExceptionResponse> handleInvalidTokenException (InvalidTokenException exception) {
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
-                .body(ExceptionReponse
+                .body(ExceptionResponse
                         .builder()
                         .code(HttpStatus.UNAUTHORIZED.toString())
                         .message(exception.getMessage())
@@ -85,14 +86,29 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<ExceptionReponse> handleConflictException (ConflictException exception) {
+    public ResponseEntity<ExceptionResponse> handleConflictException (ConflictException exception) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(ExceptionReponse
+                .body(ExceptionResponse
                         .builder()
                         .code(HttpStatus.CONFLICT.toString())
                         .message(exception.getMessage())
                         .status(HttpStatus.CONFLICT.value())
                         .build());
     }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ExceptionResponse> handleDataIntegrity(
+            DataIntegrityViolationException exception) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ExceptionResponse
+                        .builder()
+                        .code(HttpStatus.CONFLICT.toString())
+                        .message("You already have an account")
+                        .status(HttpStatus.CONFLICT.value())
+                        .build());
+    }
+
 }
