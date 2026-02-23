@@ -14,7 +14,8 @@ public interface MinistryRepository extends JpaRepository<Ministry, Long> {
         SELECT DISTINCT new com.ghenriqf.schedule.ministry.dto.response.MinistryResponse(
             m.ministry.id,
             m.ministry.name,
-            m.ministry.description
+            m.ministry.description,
+            m.ministry.avatarUrl
         )
         FROM Member m
         WHERE m.user.id = :userId

@@ -6,6 +6,7 @@ import lombok.Builder;
 public record MinistryResponse(
         Long id,
         String name,
-        String description
+        String description,
+        String avatarUrl
 ) {
 }

@@ -8,11 +8,12 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class MinistryMapper {
 
-    public static Ministry toEntity (MinistryRequest request) {
+    public static Ministry toEntity (MinistryRequest request, String avatarUrl) {
         return Ministry
                 .builder()
                 .name(request.name())
                 .description(request.description())
+                .avatarUrl(avatarUrl)
                 .build();
     }
 
@@ -22,6 +23,7 @@ public class MinistryMapper {
                 .id(entity.getId())
                 .name(entity.getName())
                 .description(entity.getDescription())
+                .avatarUrl(entity.getAvatarUrl())
                 .build();
     }
 }

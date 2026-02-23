@@ -38,4 +38,6 @@ public class Ministry {
 
     @Column(unique = true, length = 36)
     private String inviteCode;
+
+    private String avatarUrl;
 }

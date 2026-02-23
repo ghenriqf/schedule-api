@@ -4,6 +4,7 @@ import com.ghenriqf.schedule.auth.context.CurrentUserProvider;
 import com.ghenriqf.schedule.auth.entity.User;
 import com.ghenriqf.schedule.common.exception.AccessDeniedException;
 import com.ghenriqf.schedule.common.exception.ResourceNotFoundException;
+import com.ghenriqf.schedule.file.service.ImgBBService;
 import com.ghenriqf.schedule.member.entity.Member;
 import com.ghenriqf.schedule.member.service.MemberService;
 import com.ghenriqf.schedule.ministry.dto.request.MinistryRequest;
@@ -20,6 +21,7 @@ import com.ghenriqf.schedule.scale.service.ScaleService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,19 +37,16 @@ public class MinistryService {
     private final MemberService memberService;
     private final MusicService musicService;
     private final ScaleService scaleService;
+    private final ImgBBService imgBBService;
 
     @Transactional
-    public MinistryResponse create (MinistryRequest request) {
+    public MinistryResponse create (MinistryRequest request, MultipartFile avatarImage) {
         User currentUser = currentUserProvider.getCurrentUser();
 
-        Ministry ministry = Ministry
-                .builder()
-                .name(request.name())
-                .description(request.description())
-                .build();
+        String imgUrl = imgBBService.uploadToImgBB(avatarImage);
 
+        Ministry ministry = MinistryMapper.toEntity(request, imgUrl);
         Ministry save = ministryRepository.save(ministry);
-
         memberService.createAdmin(currentUser, ministry);
 
         return MinistryMapper.toResponse(save);

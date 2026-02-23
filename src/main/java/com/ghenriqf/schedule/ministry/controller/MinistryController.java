@@ -9,8 +9,10 @@ import com.ghenriqf.schedule.ministry.service.MinistryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -22,9 +24,12 @@ public class MinistryController {
     private final MinistryService ministryService;
     private final MemberService memberService;
 
-    @PostMapping
-    public ResponseEntity<MinistryResponse> create(@Valid @RequestBody MinistryRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(ministryService.create(request));
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MinistryResponse> create(
+            @RequestPart("request") @Valid MinistryRequest request,
+            @RequestPart("avatarImage") MultipartFile avatarImage
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ministryService.create(request, avatarImage));
     }
 
     @PatchMapping("/{ministryId}")
