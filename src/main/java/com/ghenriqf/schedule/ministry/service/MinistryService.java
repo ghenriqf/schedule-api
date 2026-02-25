@@ -131,6 +131,7 @@ public class MinistryService {
                 ministry.getId(),
                 ministry.getName(),
                 ministry.getDescription(),
+                ministry.getAvatarUrl(),
                 stats,
                 member.getRole()
         );

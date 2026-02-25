@@ -6,6 +6,7 @@ public record MinistryDetailResponse(
         Long id,
         String name,
         String description,
+        String avatarUrl,
         MinistryStats ministryStats,
         MinistryRole role
 ) {
