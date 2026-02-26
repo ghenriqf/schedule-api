@@ -14,6 +14,8 @@ import com.ghenriqf.schedule.ministry.repository.MinistryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -31,6 +33,16 @@ public class MemberService {
                 .build();
 
         memberRepository.save(member);
+    }
+
+    public List<MemberResponse> listByMinistryId (Long ministryId) {
+        User user = currentUserProvider.getCurrentUser();
+        this.verifyIfUserIsMemberOfMinistry(user.getId(), ministryId);
+
+        return memberRepository.findByMinistryId(ministryId)
+                .stream()
+                .map(MemberMapper::toResponse)
+                .toList();
     }
 
     public MemberResponse create (User user, Ministry ministry) {
