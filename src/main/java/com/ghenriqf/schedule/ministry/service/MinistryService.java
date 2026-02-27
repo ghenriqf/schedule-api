@@ -133,7 +133,8 @@ public class MinistryService {
                 ministry.getDescription(),
                 ministry.getAvatarUrl(),
                 stats,
-                member.getRole()
+                member.getRole(),
+                ministry.getInviteCode()
         );
     }
 }

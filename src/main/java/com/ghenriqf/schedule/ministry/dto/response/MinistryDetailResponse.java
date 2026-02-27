@@ -8,6 +8,7 @@ public record MinistryDetailResponse(
         String description,
         String avatarUrl,
         MinistryStats ministryStats,
-        MinistryRole role
+        MinistryRole role,
+        String inviteCode
 ) {
 }
