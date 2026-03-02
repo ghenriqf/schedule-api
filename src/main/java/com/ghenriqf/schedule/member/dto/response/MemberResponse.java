@@ -1,5 +1,6 @@
 package com.ghenriqf.schedule.member.dto.response;
 
+import com.ghenriqf.schedule.auth.dto.response.UserResponse;
 import com.ghenriqf.schedule.function.entity.Function;
 import com.ghenriqf.schedule.ministry.entity.MinistryRole;
 import lombok.Builder;
@@ -12,6 +13,7 @@ public record MemberResponse(
         Long userId,
         Long ministryId,
         Set<Function> functions,
-        MinistryRole role
+        MinistryRole role,
+        UserResponse user
 ) {
 }
