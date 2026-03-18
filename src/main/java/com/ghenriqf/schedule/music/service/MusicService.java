@@ -98,15 +98,11 @@ public class MusicService {
         return MusicMapper.toResponse(updatedMusic);
     }
 
-    public List<MusicResponse> findAll (PageRequestDTO pageRequestDTO, Long ministryId) {
+    public List<MusicResponse> findAll(PageRequestDTO pageRequestDTO, Long ministryId) {
         User user = currentUserProvider.getCurrentUser();
-        Member member = memberService.findByUserIdAndMinistryId(user.getId(), ministryId);
+        memberService.verifyIfUserIsMemberOfMinistry(user.getId(), ministryId);
 
-        if (!(member.getMinistry().getId().equals(ministryId))) {
-            throw new AccessDeniedException("User does not belong to the ministry");
-        }
-
-        return musicRepository.findAll(pageRequestDTO.toPageable())
+        return musicRepository.findByMinistryId(ministryId, pageRequestDTO.toPageable())
                 .stream()
                 .map(MusicMapper::toResponse)
                 .toList();
