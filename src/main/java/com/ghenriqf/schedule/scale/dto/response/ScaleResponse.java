@@ -12,6 +12,7 @@ import java.util.Set;
 public record ScaleResponse(
         Long id,
         Long ministryId,
+        Long ministerId,
         String name,
         String description,
         LocalDateTime date,

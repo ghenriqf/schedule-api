@@ -19,6 +19,7 @@ public class ScaleMapper {
                 .builder()
                 .id(entity.getId())
                 .ministryId(entity.getMinistry().getId())
+                .ministerId(entity.getMinister().getId())
                 .name(entity.getName())
                 .description(entity.getDescription())
                 .date(entity.getDate())
