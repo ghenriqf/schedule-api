@@ -26,8 +26,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class MusicServiceTest {
@@ -118,5 +117,30 @@ class MusicServiceTest {
                 .hasMessageContaining("Ministry not found");
 
         verify(musicRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldReturnMusicWhenIdIsValid() {
+        // given
+        User user = new User();
+        user.setId(1L);
+
+        Ministry ministry = new Ministry();
+        ministry.setId(1L);
+
+        Music music = new Music();
+        music.setId(1L);
+        music.setMinistry(ministry);
+
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        doNothing().when(memberService).verifyIfUserIsMemberOfMinistry(1L, 1L);
+        given(musicRepository.findById(1L)).willReturn(Optional.of(music));
+
+        // when
+        MusicResponse response = musicService.findById(music.getId(), ministry.getId());
+
+        // than
+        assertThat(response).isNotNull();
+        verify(musicRepository).findById(1L);
     }
 }
