@@ -3,6 +3,7 @@ package com.ghenriqf.schedule.music.service;
 import com.ghenriqf.schedule.auth.context.CurrentUserProvider;
 import com.ghenriqf.schedule.auth.entity.User;
 import com.ghenriqf.schedule.common.exception.AccessDeniedException;
+import com.ghenriqf.schedule.common.exception.ResourceNotFoundException;
 import com.ghenriqf.schedule.member.entity.Member;
 import com.ghenriqf.schedule.member.service.MemberService;
 import com.ghenriqf.schedule.ministry.entity.Ministry;
@@ -11,7 +12,6 @@ import com.ghenriqf.schedule.ministry.repository.MinistryRepository;
 import com.ghenriqf.schedule.music.dto.request.MusicRequest;
 import com.ghenriqf.schedule.music.dto.response.MusicResponse;
 import com.ghenriqf.schedule.music.entity.Music;
-import com.ghenriqf.schedule.music.mapper.MusicMapper;
 import com.ghenriqf.schedule.music.repository.MusicRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -97,22 +97,26 @@ class MusicServiceTest {
     }
 
     @Test
-    void findById() {
-    }
+    void shouldThrowResourceNotFoundExceptionWhenMinistryNotFound() {
+        // given
+        User user = new User();
+        user.setId(1L);
 
-    @Test
-    void delete() {
-    }
+        Member member = new Member();
+        member.setRole(MinistryRole.ADMIN);
 
-    @Test
-    void update() {
-    }
+        MusicRequest musicRequest = new MusicRequest("", "", "", "", "");
 
-    @Test
-    void findAll() {
-    }
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(memberService.findByUserIdAndMinistryId(1L, 1L)).willReturn(member);
+        given(ministryRepository.findById(anyLong())).willReturn(Optional.empty());
 
-    @Test
-    void countByMinistryId() {
+        // when
+        // than
+        assertThatThrownBy(() -> musicService.save(1L, musicRequest))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Ministry not found");
+
+        verify(musicRepository, never()).save(any());
     }
 }
