@@ -143,4 +143,46 @@ class MusicServiceTest {
         assertThat(response).isNotNull();
         verify(musicRepository).findById(1L);
     }
+
+    @Test
+    void shouldThrowResourceNotFoundExceptionWhenSongNotFound() {
+        // given
+        User user = new User();
+        user.setId(1L);
+
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        doNothing().when(memberService).verifyIfUserIsMemberOfMinistry(user.getId(), 1L);
+        given(musicRepository.findById(1L)).willReturn(Optional.empty());
+
+        // when
+        // then
+        assertThatThrownBy(() -> musicService.findById(1L, 1L))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Song not found");
+    }
+
+    @Test
+    void shouldThrowAccessDeniedExceptionWhenSongDoesNotBelongToTheMinistry (){
+        // given
+        User user = new User();
+        user.setId(1L);
+
+        Ministry ministry = new Ministry();
+        ministry.setId(1L);
+        Music music = new Music();
+        music.setId(1L);
+        music.setMinistry(ministry);
+
+        Long anotherMinistryId  = 2L;
+
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(musicRepository.findById(music.getId())).willReturn(Optional.of(music));
+        doNothing().when(memberService).verifyIfUserIsMemberOfMinistry(user.getId(), anotherMinistryId );
+
+        // when
+        // then
+        assertThatThrownBy(() -> musicService.findById(music.getId(), anotherMinistryId ))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageContaining("This song does not belong to the ministry mentioned");
+    }
 }
