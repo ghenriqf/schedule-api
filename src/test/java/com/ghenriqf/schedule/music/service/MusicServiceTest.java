@@ -341,4 +341,60 @@ class MusicServiceTest {
 
         verify(musicRepository, never()).save(any());
     }
+
+    @Test
+    void shouldThrowResourceNotFoundExceptionWhenUpdatingAndSongNotFound () {
+        // given
+        User user = new User();
+        user.setId(1L);
+
+        Member member = new Member();
+        member.setRole(MinistryRole.ADMIN);
+
+        MusicRequest musicRequest = new MusicRequest("", "", "", "", "");
+
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(memberService.findByUserIdAndMinistryId(user.getId(), 1L)).willReturn(member);
+
+        // when
+        // then
+        assertThatThrownBy(() -> musicService.update(musicRequest, 1L, 1L))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Song not found");
+
+        verify(musicRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldThrowAccessDeniedExceptionWhenUpdatingAndSongDoesNotBelongToMinistry () {
+        // given
+        User user = new User();
+        user.setId(1L);
+
+        Member member = new Member();
+        member.setRole(MinistryRole.ADMIN);
+
+        Ministry ministry = new Ministry();
+        ministry.setId(1L);
+
+        Music music = new Music();
+        music.setId(1L);
+        music.setMinistry(ministry);
+
+        MusicRequest musicRequest = new MusicRequest("", "", "", "", "");
+
+        Long anotherMinistryId  = 2L;
+
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(memberService.findByUserIdAndMinistryId(user.getId(), anotherMinistryId)).willReturn(member);
+        given(musicRepository.findById(music.getId())).willReturn(Optional.of(music));
+
+        // when
+        // then
+        assertThatThrownBy(() -> musicService.update(musicRequest, music.getId(), anotherMinistryId))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageContaining("This song does not belong to the ministry mentioned");
+
+        verify(musicRepository, never()).save(any());
+    }
 }
