@@ -67,7 +67,7 @@ class MusicServiceTest {
         // when
         MusicResponse response = musicService.save(1L, musicRequest);
 
-        // than
+        // then
         assertThat(response).isNotNull();
         verify(musicRepository).save(any());
     }
@@ -87,7 +87,7 @@ class MusicServiceTest {
         given(memberService.findByUserIdAndMinistryId(1L, 1L)).willReturn(member);
 
         // when
-        // than
+        // then
         assertThatThrownBy(() -> musicService.save(1L, musicRequest))
                 .isInstanceOf(AccessDeniedException.class)
                 .hasMessageContaining("Only administrators can add song");
@@ -111,7 +111,7 @@ class MusicServiceTest {
         given(ministryRepository.findById(anyLong())).willReturn(Optional.empty());
 
         // when
-        // than
+        // then
         assertThatThrownBy(() -> musicService.save(1L, musicRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Ministry not found");
@@ -139,7 +139,7 @@ class MusicServiceTest {
         // when
         MusicResponse response = musicService.findById(music.getId(), ministry.getId());
 
-        // than
+        // then
         assertThat(response).isNotNull();
         verify(musicRepository).findById(1L);
     }
@@ -285,5 +285,60 @@ class MusicServiceTest {
                 .hasMessageContaining("This song does not belong to the ministry mentioned");
 
         verify(musicRepository, never()).delete(any());
+    }
+
+    @Test
+    void shouldUpdateSongSuccessfullyWhenMemberIsAdmin () {
+        // given
+        User user = new User();
+        user.setId(1L);
+
+        Ministry ministry = new Ministry();
+        ministry.setId(1L);
+
+        Member member = new Member();
+        member.setRole(MinistryRole.ADMIN);
+        member.setMinistry(ministry);
+
+        Music music = new Music();
+        music.setId(1L);
+        music.setMinistry(ministry);
+
+        MusicRequest musicRequest = new MusicRequest("", "", "", "", "");
+
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(memberService.findByUserIdAndMinistryId(user.getId(), ministry.getId())).willReturn(member);
+        given(musicRepository.findById(music.getId())).willReturn(Optional.of(music));
+        given(musicRepository.save(any())).willReturn(music);
+
+        // when
+        MusicResponse response = musicService.update(musicRequest, music.getId(), ministry.getId());
+
+        // then
+        verify(musicRepository).save(any());
+        assertThat(response).isNotNull();
+    }
+
+    @Test
+    void shouldThrowAccessDeniedExceptionWhenUpdatingSongAndMemberIsNotAdmin () {
+        // given
+        User user = new User();
+        user.setId(1L);
+
+        Member member = new Member();
+        member.setRole(MinistryRole.MEMBER);
+
+        MusicRequest musicRequest = new MusicRequest("", "", "", "", "");
+
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(memberService.findByUserIdAndMinistryId(user.getId(), 1L)).willReturn(member);
+
+        // when
+        // then
+        assertThatThrownBy(() -> musicService.update(musicRequest, 1L, 1L))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageContaining("Only administrators can update songs");
+
+        verify(musicRepository, never()).save(any());
     }
 }
