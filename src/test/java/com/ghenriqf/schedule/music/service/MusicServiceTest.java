@@ -43,7 +43,7 @@ class MusicServiceTest {
     private MusicService musicService;
 
     @Test
-    void shouldSaveMusicSuccessfullyWhenMemberIsAdmin() {
+    void shouldSaveMusicSuccessfullyWhenSavingAndMemberIsAdmin() {
         // given
         MusicRequest musicRequest = new MusicRequest("", "", "", "", "");
 
@@ -73,7 +73,7 @@ class MusicServiceTest {
     }
 
     @Test
-    void shouldThrowAccessDeniedExceptionWhenMemberIsNotAdmin() {
+    void shouldThrowAccessDeniedExceptionWhenSavingAndMemberIsNotAdmin() {
         // given
         User user = new User();
         user.setId(1L);
@@ -96,7 +96,7 @@ class MusicServiceTest {
     }
 
     @Test
-    void shouldThrowResourceNotFoundExceptionWhenMinistryNotFound() {
+    void shouldThrowResourceNotFoundExceptionWhenSavingAndMinistryNotFound() {
         // given
         User user = new User();
         user.setId(1L);
@@ -120,7 +120,7 @@ class MusicServiceTest {
     }
 
     @Test
-    void shouldReturnMusicWhenIdIsValid() {
+    void shouldReturnMusicWhenFindingByIdAndIdIsValid() {
         // given
         User user = new User();
         user.setId(1L);
@@ -145,7 +145,7 @@ class MusicServiceTest {
     }
 
     @Test
-    void shouldThrowResourceNotFoundExceptionWhenSongNotFound() {
+    void shouldThrowResourceNotFoundExceptionWhenFindingByIdAndSongNotFound() {
         // given
         User user = new User();
         user.setId(1L);
@@ -162,7 +162,7 @@ class MusicServiceTest {
     }
 
     @Test
-    void shouldThrowAccessDeniedExceptionWhenSongDoesNotBelongToTheMinistry (){
+    void shouldThrowAccessDeniedExceptionWhenFindingByIdAndSongDoesNotBelongToMinistry () {
         // given
         User user = new User();
         user.setId(1L);
@@ -184,5 +184,106 @@ class MusicServiceTest {
         assertThatThrownBy(() -> musicService.findById(music.getId(), anotherMinistryId ))
                 .isInstanceOf(AccessDeniedException.class)
                 .hasMessageContaining("This song does not belong to the ministry mentioned");
+    }
+
+    @Test
+    void shouldDeleteSongSuccessfullyWhenMemberIsAdmin () {
+        // given
+        User user = new User();
+        user.setId(1L);
+
+        Ministry ministry = new Ministry();
+        ministry.setId(1L);
+
+        Member member = new Member();
+        member.setRole(MinistryRole.ADMIN);
+
+        Music music = new Music();
+        music.setMinistry(ministry);
+        music.setId(1L);
+
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(memberService.findByUserIdAndMinistryId(user.getId(), ministry.getId())).willReturn(member);
+        given(musicRepository.findById(music.getId())).willReturn(Optional.of(music));
+
+        // when
+        musicService.delete(music.getId(), ministry.getId());
+
+        // then
+        verify(musicRepository).delete(music);
+    }
+
+    @Test
+    void shouldThrowAccessDeniedExceptionWhenDeletingSongAndMemberIsNotAdmin () {
+        // given
+        User user = new User();
+        user.setId(1L);
+
+        Member member = new Member();
+        member.setRole(MinistryRole.MEMBER);
+
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(memberService.findByUserIdAndMinistryId(user.getId(), 1L)).willReturn(member);
+
+        // when
+        // then
+        assertThatThrownBy(() -> musicService.delete(1L, 1L))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageContaining("Only administrators can delete songs");
+
+        verify(musicRepository, never()).delete(any());
+    }
+
+    @Test
+    void shouldThrowResourceNotFoundExceptionWhenDeletingAndSongNotFound () {
+        // given
+        User user = new User();
+        user.setId(1L);
+
+        Member member = new Member();
+        member.setRole(MinistryRole.ADMIN);
+
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(memberService.findByUserIdAndMinistryId(user.getId(), 1L)).willReturn(member);
+
+        // when
+        // then
+        assertThatThrownBy(() -> musicService.delete(1L, 1L))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Song not found");
+
+        verify(musicRepository, never()).delete(any());
+    }
+
+    @Test
+    void shouldThrowAccessDeniedExceptionWhenDeletingAndSongDoesNotBelongToMinistry () {
+        // given
+        User user = new User();
+        user.setId(1L);
+
+        Member member = new Member();
+        member.setRole(MinistryRole.ADMIN);
+
+        Ministry ministry = new Ministry();
+        ministry.setId(1L);
+
+        Music music = new Music();
+        music.setId(1L);
+        music.setMinistry(ministry);
+
+        Long anotherMinistryId  = 2L;
+
+
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(memberService.findByUserIdAndMinistryId(user.getId(), anotherMinistryId)).willReturn(member);
+        given(musicRepository.findById(music.getId())).willReturn(Optional.of(music));
+
+        // when
+        // then
+        assertThatThrownBy(() -> musicService.delete(music.getId(), anotherMinistryId))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageContaining("This song does not belong to the ministry mentioned");
+
+        verify(musicRepository, never()).delete(any());
     }
 }
