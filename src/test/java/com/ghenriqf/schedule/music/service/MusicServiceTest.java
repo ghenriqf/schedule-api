@@ -2,6 +2,7 @@ package com.ghenriqf.schedule.music.service;
 
 import com.ghenriqf.schedule.auth.context.CurrentUserProvider;
 import com.ghenriqf.schedule.auth.entity.User;
+import com.ghenriqf.schedule.common.dto.PageRequestDTO;
 import com.ghenriqf.schedule.common.exception.AccessDeniedException;
 import com.ghenriqf.schedule.common.exception.ResourceNotFoundException;
 import com.ghenriqf.schedule.member.entity.Member;
@@ -18,7 +19,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -396,5 +399,26 @@ class MusicServiceTest {
                 .hasMessageContaining("This song does not belong to the ministry mentioned");
 
         verify(musicRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldListAllSongsWhenUserIsMemberOfMinistry() {
+        // given
+        User user = new User();
+        user.setId(1L);
+        Long ministryId = 1L;
+
+        PageRequestDTO pageRequestDTO = new PageRequestDTO(0, 10);
+
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        doNothing().when(memberService).verifyIfUserIsMemberOfMinistry(user.getId(), ministryId);
+        given(musicRepository.findByMinistryId(eq(ministryId), any())).willReturn(Page.empty());
+
+        // when
+        List<MusicResponse> response = musicService.findAll(pageRequestDTO, ministryId);
+
+        // then
+        assertThat(response).isNotNull();
+        verify(musicRepository).findByMinistryId(eq(ministryId), any());
     }
 }
