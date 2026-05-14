@@ -3,6 +3,7 @@ package com.ghenriqf.schedule.ministry.service;
 import com.ghenriqf.schedule.auth.context.CurrentUserProvider;
 import com.ghenriqf.schedule.auth.entity.User;
 import com.ghenriqf.schedule.common.exception.AccessDeniedException;
+import com.ghenriqf.schedule.common.exception.ResourceNotFoundException;
 import com.ghenriqf.schedule.member.entity.Member;
 import com.ghenriqf.schedule.member.service.MemberService;
 import com.ghenriqf.schedule.ministry.dto.request.MinistryUpdateRequest;
@@ -83,6 +84,32 @@ class MinistryServiceTest {
         assertThatThrownBy(() -> ministryService.update(1L, request))
                 .isInstanceOf(AccessDeniedException.class)
                 .hasMessageContaining("Only administrators can update ministry");
+
+        verify(ministryRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldThrowResourceNotFoundExceptionWhenUpdatingMinistryAndMinistryNotFound () {
+        // given
+        User user = new User();
+        user.setId(1L);
+
+        Member member = new Member();
+        member.setRole(MinistryRole.ADMIN);
+
+        Long ministryId = 1L;
+
+        MinistryUpdateRequest request = new MinistryUpdateRequest("", "");
+
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(memberService.findByUserIdAndMinistryId(user.getId(), ministryId)).willReturn(member);
+        given(ministryRepository.findById(1L)).willReturn(Optional.empty());
+
+        // when
+        // then
+        assertThatThrownBy(() -> ministryService.update(1L, request))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Ministry not found with id: " + ministryId);
 
         verify(ministryRepository, never()).save(any());
     }
