@@ -2,6 +2,7 @@ package com.ghenriqf.schedule.ministry.service;
 
 import com.ghenriqf.schedule.auth.context.CurrentUserProvider;
 import com.ghenriqf.schedule.auth.entity.User;
+import com.ghenriqf.schedule.common.exception.AccessDeniedException;
 import com.ghenriqf.schedule.member.entity.Member;
 import com.ghenriqf.schedule.member.service.MemberService;
 import com.ghenriqf.schedule.ministry.dto.request.MinistryUpdateRequest;
@@ -18,7 +19,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,7 +38,7 @@ class MinistryServiceTest {
     private MinistryService ministryService;
 
     @Test
-    void shouldUpdateMinistryWhenUserIsAdmin() {
+    void shouldUpdateMinistryWhenMemberIsAdmin() {
         // given
         User user = new User();
         user.setId(1L);
@@ -58,5 +62,28 @@ class MinistryServiceTest {
         // then
         verify(ministryRepository).save(ministry);
         assertThat(response).isNotNull();
+    }
+
+    @Test
+    void shouldThrowAccessDeniedExceptionWhenUpdatingMinistryAndMemberIsNotAdmin () {
+        // given
+        User user = new User();
+        user.setId(1L);
+
+        Member member = new Member();
+        member.setRole(MinistryRole.MEMBER);
+
+        MinistryUpdateRequest request = new MinistryUpdateRequest("", "");
+
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(memberService.findByUserIdAndMinistryId(user.getId(), 1L)).willReturn(member);
+
+        // when
+        // then
+        assertThatThrownBy(() -> ministryService.update(1L, request))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageContaining("Only administrators can update ministry");
+
+        verify(ministryRepository, never()).save(any());
     }
 }
