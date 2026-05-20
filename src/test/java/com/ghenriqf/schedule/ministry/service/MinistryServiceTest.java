@@ -23,8 +23,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class MinistryServiceTest {
@@ -144,5 +143,77 @@ class MinistryServiceTest {
 
         verify(ministryRepository).save(ministry);
         assertThat(serviceResponse).isNotNull();
+    }
+
+    @Test
+    void shouldDeleteMinistryWhenMemberIsAdmin () {
+        // given
+        User user = new User();
+        user.setId(1L);
+
+        Member member = new Member();
+        member.setRole(MinistryRole.ADMIN);
+
+        Ministry ministry = new Ministry();
+        ministry.setId(1L);
+
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(memberService.findByUserIdAndMinistryId(user.getId(), ministry.getId())).willReturn(member);
+        given(ministryRepository.findById(ministry.getId())).willReturn(Optional.of(ministry));
+
+        // when
+        ministryService.delete(ministry.getId());
+
+        // then
+        verify(ministryRepository).delete(ministry);
+    }
+
+    @Test
+    void shouldThrowAccessDeniedExceptionWhenDeletingMinistryAndMemberIsNotAdmin () {
+        // given
+        User user = new User();
+        user.setId(1L);
+
+        Member member = new Member();
+        member.setRole(MinistryRole.MEMBER);
+
+        Ministry ministry = new Ministry();
+        ministry.setId(1L);
+
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(memberService.findByUserIdAndMinistryId(user.getId(), ministry.getId())).willReturn(member);
+
+        // when
+        // then
+        assertThatThrownBy(() -> ministryService.delete(ministry.getId()))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageContaining("Only administrators can delete ministry");
+
+        verify(ministryRepository, never()).delete(any());
+    }
+
+    @Test
+    void shouldThrowResourceNotFoundExceptionWhenDeletingMinistryAndMinistryNotFound () {
+        // given
+        User user = new User();
+        user.setId(1L);
+
+        Member member = new Member();
+        member.setRole(MinistryRole.ADMIN);
+
+        Ministry ministry = new Ministry();
+        ministry.setId(1L);
+
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(memberService.findByUserIdAndMinistryId(user.getId(), ministry.getId())).willReturn(member);
+        given(ministryRepository.findById(1L)).willReturn(Optional.empty());
+
+        // when
+        // then
+        assertThatThrownBy(() -> ministryService.delete(ministry.getId()))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Ministry not found with id: " + ministry.getId());
+
+        verify(ministryRepository, never()).delete(any());
     }
 }
