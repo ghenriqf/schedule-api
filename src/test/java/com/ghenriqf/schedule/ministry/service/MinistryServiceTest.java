@@ -113,4 +113,36 @@ class MinistryServiceTest {
 
         verify(ministryRepository, never()).save(any());
     }
+
+    @Test
+    void shouldNotUpdateMinistryWhenFieldsAreNull () {
+        // given
+        User user = new User();
+        user.setId(1L);
+
+        Member member = new Member();
+        member.setRole(MinistryRole.ADMIN);
+
+        Ministry ministry = new Ministry();
+        ministry.setId(1L);
+        ministry.setName("Ministry");
+        ministry.setDescription("Description");
+
+        MinistryUpdateRequest request = new MinistryUpdateRequest(null, null);
+
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(memberService.findByUserIdAndMinistryId(user.getId(), ministry.getId())).willReturn(member);
+        given(ministryRepository.findById(ministry.getId())).willReturn(Optional.of(ministry));
+        given(ministryRepository.save(ministry)).willReturn(ministry);
+
+        // when
+        MinistryResponse serviceResponse = ministryService.update(ministry.getId(), request);
+
+        // then
+        assertThat(ministry.getName()).isEqualTo("Ministry");
+        assertThat(ministry.getDescription()).isEqualTo("Description");
+
+        verify(ministryRepository).save(ministry);
+        assertThat(serviceResponse).isNotNull();
+    }
 }
