@@ -216,4 +216,67 @@ class MinistryServiceTest {
 
         verify(ministryRepository, never()).delete(any());
     }
+
+    @Test
+    void shouldGenerateInviteCodeWhenMemberIsAdmin () {
+        // given
+        User user = new User();
+        user.setId(1L);
+
+        Member member = new Member();
+        member.setRole(MinistryRole.ADMIN);
+
+        Ministry ministry = new Ministry();
+        ministry.setId(1L);
+
+        given(ministryRepository.findById(ministry.getId())).willReturn(Optional.of(ministry));
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(memberService.findByUserIdAndMinistryId(user.getId(), ministry.getId())).willReturn(member);
+
+        // when
+        String inviteCode = ministryService.generateInviteCode(ministry.getId());
+
+        // then
+        assertThat(ministry.getInviteCode()).isEqualTo(inviteCode);
+        verify(ministryRepository).save(ministry);
+    }
+
+    @Test
+    void shouldThrowResourceNotFoundExceptionWhenGeneratingInviteCodeAndMinistryNotFound () {
+        // given
+        Long ministryId = 1L;
+
+        // when
+        // then
+        assertThatThrownBy(() -> ministryService.generateInviteCode(ministryId))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Ministry not found");
+
+        verify(ministryRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldThrowAccessDeniedExceptionWhenGeneratingInviteCodeAndMemberIsNotAdmin() {
+        // given
+        User user = new User();
+        user.setId(1L);
+
+        Member member = new Member();
+        member.setRole(MinistryRole.MEMBER);
+
+        Ministry ministry = new Ministry();
+        ministry.setId(1L);
+
+        given(ministryRepository.findById(ministry.getId())).willReturn(Optional.of(ministry));
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(memberService.findByUserIdAndMinistryId(user.getId(), ministry.getId())).willReturn(member);
+
+        // when
+        // then
+        assertThatThrownBy(() -> ministryService.generateInviteCode(ministry.getId()))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageContaining("Only administrators can generate the link");
+
+        verify(ministryRepository, never()).save(any());
+    }
 }
