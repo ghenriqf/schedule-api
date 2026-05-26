@@ -4,19 +4,27 @@ import com.ghenriqf.schedule.auth.context.CurrentUserProvider;
 import com.ghenriqf.schedule.auth.entity.User;
 import com.ghenriqf.schedule.common.exception.AccessDeniedException;
 import com.ghenriqf.schedule.common.exception.ResourceNotFoundException;
+import com.ghenriqf.schedule.file.service.ImgBBService;
 import com.ghenriqf.schedule.member.entity.Member;
 import com.ghenriqf.schedule.member.service.MemberService;
+import com.ghenriqf.schedule.ministry.dto.request.MinistryRequest;
 import com.ghenriqf.schedule.ministry.dto.request.MinistryUpdateRequest;
+import com.ghenriqf.schedule.ministry.dto.response.MinistryDetailResponse;
 import com.ghenriqf.schedule.ministry.dto.response.MinistryResponse;
 import com.ghenriqf.schedule.ministry.entity.Ministry;
 import com.ghenriqf.schedule.ministry.entity.MinistryRole;
 import com.ghenriqf.schedule.ministry.repository.MinistryRepository;
+import com.ghenriqf.schedule.music.service.MusicService;
+import com.ghenriqf.schedule.scale.service.ScaleService;
+import jakarta.transaction.UserTransaction;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -34,8 +42,43 @@ class MinistryServiceTest {
     private MemberService memberService;
     @Mock
     private MinistryRepository ministryRepository;
+    @Mock
+    private ImgBBService imgBBService;
+    @Mock
+    private ScaleService scaleService;
+    @Mock
+    private MusicService musicService;
     @InjectMocks
     private MinistryService ministryService;
+
+    @Test
+    void shouldCreateMinistrySuccessfully() {
+        // given
+        User user = new User();
+        user.setId(1L);
+
+        MultipartFile avatarImage = mock(MultipartFile.class);
+
+        Ministry ministry = new Ministry();
+        ministry.setId(1L);
+        ministry.setName("Louvor");
+
+        MinistryRequest request = new MinistryRequest("Louvor", "Descrição");
+
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(imgBBService.uploadToImgBB(avatarImage)).willReturn("https://imgbb.com/image.jpg");
+        given(ministryRepository.save(any())).willReturn(ministry);
+        doNothing().when(memberService).createAdmin(any(), any());
+
+        // when
+        MinistryResponse response = ministryService.create(request, avatarImage);
+
+        // then
+        assertThat(response).isNotNull();
+        verify(imgBBService).uploadToImgBB(avatarImage);
+        verify(ministryRepository).save(any());
+        verify(memberService).createAdmin(eq(user), any());
+    }
 
     @Test
     void shouldUpdateMinistryWhenMemberIsAdmin() {
@@ -278,5 +321,46 @@ class MinistryServiceTest {
                 .hasMessageContaining("Only administrators can generate the link");
 
         verify(ministryRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldReturnMinistryDetailWhenUserIsMember () {
+        // given
+        User user = new User();
+        user.setId(1L);
+
+        Ministry ministry = new Ministry();
+        ministry.setId(1L);
+
+        Member member = new Member();
+
+        given(ministryRepository.findById(ministry.getId())).willReturn(Optional.of(ministry));
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(memberService.findByUserIdAndMinistryId(user.getId(), ministry.getId())).willReturn(member);
+
+        // when
+        MinistryDetailResponse response = ministryService.getDetailById(ministry.getId());
+
+        // then
+        assertThat(response).isNotNull();
+        verify(memberService).countByMinistryId(ministry.getId());
+        verify(scaleService).countByMinistryIdAndDateAfter(eq(ministry.getId()), any(LocalDateTime.class));
+        verify(musicService).countByMinistryId(ministry.getId());
+    }
+
+    @Test
+    void shouldThrowResourceNotFoundExceptionWhenGettingDetailAndMinistryNotFound () {
+        // given
+        Long ministryId = 1L;
+
+        // when
+        // then
+        assertThatThrownBy(() -> ministryService.getDetailById(ministryId))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Ministry not found with id: " + ministryId);
+
+        verify(memberService, never()).countByMinistryId(any());
+        verify(scaleService, never()).countByMinistryIdAndDateAfter(any(), any());
+        verify(musicService, never()).countByMinistryId(any());
     }
 }
