@@ -21,8 +21,8 @@ import java.util.Set;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.doNothing;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -101,5 +101,17 @@ class ScaleControllerTest {
                 .andExpect(jsonPath("$.description").value("description"))
                 .andExpect(jsonPath("$.members").isArray())
                 .andExpect(jsonPath("$.musics").isArray());
+    }
+
+    @Test
+    void shouldDeleteScaleAndReturn204() throws Exception {
+        // given
+        doNothing().when(scaleService).delete(eq(1L), eq(1L));
+
+        // when
+        // then
+        mockMvc.perform(delete("/ministries/1/scales/1")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNoContent());
     }
 }
